@@ -1,0 +1,7 @@
+version: '0.0'
+services:
+  openai:
+    image: openai.image.test:dev0
+    build:
+      context: ./
+      dockerfile: ./docker/openai/Dockerfile

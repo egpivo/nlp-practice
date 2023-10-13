@@ -1,4 +1,4 @@
-FROM python:3.11-buster as builder
+FROM python:3.9-buster as builder
 
 RUN pip install --no-cache-dir --user poetry==1.6.1
 

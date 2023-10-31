@@ -2,9 +2,6 @@ from collections import defaultdict
 
 from examples.translation.utils import normalize_string, read_file
 
-SOS_token = 0
-EOS_token = 1
-
 
 class LanguageData:
     def __init__(self, name: str) -> None:
@@ -27,7 +24,12 @@ class LanguageData:
 
 
 class DataReader:
-    def __init__(self, first_language: str ="eng", second_language: str = "fra", does_reverse: bool=False) -> None:
+    def __init__(
+        self,
+        first_language: str = "eng",
+        second_language: str = "fra",
+        does_reverse: bool = False,
+    ) -> None:
         self.first_language = first_language
         self.second_language = second_language
         self.does_reverse = does_reverse
@@ -44,7 +46,3 @@ class DataReader:
             input_language = LanguageData(self.first_language)
             output_language = LanguageData(self.second_language)
         return input_language, output_language, pairs
-
-
-if __name__ == '__main__':
-    DataReader().read()[0]

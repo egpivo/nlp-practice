@@ -30,13 +30,13 @@ def normalize_string(string: str) -> str:
     Examples
     --------
     >>> normalize_string(u'I\u2019m    happy.Really,,, ~..!')
-    'i m happy .really . . !'
+    'i m happy really !'
     """
     lower_string = string.lower().strip()
     removed_accents = remove_accents(lower_string)
     target_punctuations = re.sub(r"([.!?])", r" \1", removed_accents)
-    removed_punctuations = re.sub(r"[^a-zA-Z.!?]+", r" ", target_punctuations)
-    return removed_punctuations
+    removed_punctuations = re.sub(r"[^a-zA-Z!?]+", r" ", target_punctuations)
+    return removed_punctuations.strip()
 
 
 def read_file(language1: str = "eng", language2: str = "fra") -> list[str]:
@@ -55,7 +55,7 @@ def read_file(language1: str = "eng", language2: str = "fra") -> list[str]:
 def is_valid_pair(pair: list[str], prefixes: tuple[str] = ENGLISH_PREFIXES) -> bool:
     return (
         len(pair[0].split(" ")) < MAX_LENGTH
-        and len(pair[1].split(" ") < MAX_LENGTH)
+        and len(pair[1].split(" ")) < MAX_LENGTH
         and pair[1].startswith(prefixes)
     )
 

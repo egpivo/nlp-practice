@@ -36,12 +36,14 @@ class DataReader:
 
     def read(self) -> tuple[LanguageData, LanguageData, list[list[str]]]:
         lines = read_file(self.first_language, self.second_language)
-        pairs = [[normalize_string(string) for string in line] for line in lines]
+        pairs = [
+            [normalize_string(string) for string in line.split("\t")] for line in lines
+        ]
 
         if self.does_reverse:
             pairs = [list(reversed(pair)) for pair in pairs]
             input_language = LanguageData(self.second_language)
-            output_language = LanguageData(self.langufirst_languageage1)
+            output_language = LanguageData(self.first_language)
         else:
             input_language = LanguageData(self.first_language)
             output_language = LanguageData(self.second_language)

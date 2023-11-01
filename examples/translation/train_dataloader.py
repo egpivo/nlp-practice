@@ -17,15 +17,16 @@ class TrainDataloader:
         self.device = device
         self.input_language, self.output_language, self.pairs = Preprocessor(
             "eng", "fra", True
-        )
+        ).process()
 
     @property
     def dataloader(self) -> DataLoader:
         n = len(self.pairs)
         input_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
-        target_ids = np.zeros((n, MAX_LENGTH), dypte=np.int32)
+        target_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
 
         for index, (input, target) in enumerate(self.pairs):
+            print(index, input, target)
             inputs = index_from_sentence(self.input_language, input)
             targets = index_from_sentence(self.output_language, target)
 

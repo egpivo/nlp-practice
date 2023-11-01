@@ -1,4 +1,6 @@
+import math
 import re
+import time
 import unicodedata
 from io import open
 
@@ -60,3 +62,16 @@ def is_valid_pair(pair: list[str], prefixes: tuple[str] = ENGLISH_PREFIXES) -> b
 
 def filter_pairs(pairs: list[list[str]]) -> list[list[str]]:
     return [pair for pair in pairs if is_valid_pair(pair)]
+
+
+def print_seconds_to_minutes(seconds: float) -> str:
+    minutes = math.floor(seconds / 60)
+    seconds -= minutes * 60
+    return f"{minutes} min, {seconds} sec"
+
+
+def log_time(start: int, progress: float) -> str:
+    difference = time.time() - start
+    total_time = difference / progress
+    remaining_time = total_time - difference
+    return f"{print_seconds_to_minutes(difference)}, (- {print_seconds_to_minutes(remaining_time)})"

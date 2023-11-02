@@ -8,7 +8,7 @@ from examples.translation.preprocessor import Preprocessor
 
 
 def index_from_sentence(language: LanguageData, sentence: str):
-    return [language.word_to_index[word] for word in sentence.split(" ")]
+    return [language.word_to_index[word] for word in sentence.split(" ")][:MAX_LENGTH]
 
 
 class TrainDataloader:
@@ -22,17 +22,15 @@ class TrainDataloader:
     @property
     def dataloader(self) -> DataLoader:
         n = len(self.pairs)
-        input_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
-        target_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
+        input_ids = np.zeros((n, MAX_LENGTH + 1), dtype=np.int32)
+        target_ids = np.zeros((n, MAX_LENGTH + 1), dtype=np.int32)
 
         for index, (input, target) in enumerate(self.pairs):
-            print(index, input, target)
             inputs = index_from_sentence(self.input_language, input)
             targets = index_from_sentence(self.output_language, target)
 
             inputs.append(EOS_TOKEN)
             targets.append(EOS_TOKEN)
-
             input_ids[index, : len(inputs)] = inputs
             target_ids[index, : len(targets)] = targets
 

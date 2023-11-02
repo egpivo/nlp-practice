@@ -17,8 +17,10 @@ class Preprocessor:
         input_language, output_language, pairs = DataReader(
             self.first_language, self.second_language, self.does_reverse
         ).read()
-
-        for pair in filter_pairs(pairs):
+        valid_pairs = filter_pairs(pairs)
+        for pair in valid_pairs:
+            if "carded" in pair[1]:
+                print(pair)
             input_language.add_sentence(pair[0])
             output_language.add_sentence(pair[1])
-        return input_language, output_language, pairs
+        return input_language, output_language, valid_pairs

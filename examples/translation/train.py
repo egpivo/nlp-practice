@@ -78,6 +78,7 @@ if __name__ == "__main__":
     hidden_size = 128
     batch_size = 16
     num_epochs = 10
+    dropout_rate = 0.2
     device = "cpu"
 
     dataloader_instance = TrainDataloader(batch_size, device)
@@ -85,8 +86,8 @@ if __name__ == "__main__":
     input_langauge = dataloader_instance.input_language
     output_language = dataloader_instance.output_language
 
-    encoder = EncoderRNN(input_langauge.num_words, hidden_size).to(device)
-    decoder = AttentionDecoderRNN(hidden_size, output_language.num_words, device).to(
-        device
-    )
+    encoder = EncoderRNN(input_langauge.num_words, hidden_size, dropout_rate).to(device)
+    decoder = AttentionDecoderRNN(
+        hidden_size, output_language.num_words, dropout_rate, device
+    ).to(device)
     train(dataloader, encoder, decoder, num_epochs)

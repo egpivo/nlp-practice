@@ -29,9 +29,10 @@ def train_per_epoch(
         decoder_optimizer.zero_grad()
         encoder_outputs, encoder_hidden = encoder(input_tensor)
         decoder_outputs, _, _ = decoder(encoder_outputs, encoder_hidden, target_tensor)
-        loss = criterion(
-            decoder_outputs.view(-1, decoder_outputs.size(-1)), target_tensor.view(-1)
+        decoder_outputs = torch.nan_to_num(
+            decoder_outputs.view(-1, decoder_outputs.size(-1))
         )
+        loss = criterion(decoder_outputs, target_tensor.view(-1))
         loss.backward()
         encoder_optimizer.step()
         decoder_optimizer.step()

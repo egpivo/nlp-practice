@@ -1,6 +1,7 @@
 import logging
 import time
 
+import torch
 import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader
@@ -26,15 +27,12 @@ def train_per_epoch(
         input_tensor, target_tensor = data
         encoder_optimizer.zero_grad()
         decoder_optimizer.zero_grad()
-
         encoder_outputs, encoder_hidden = encoder(input_tensor)
         decoder_outputs, _, _ = decoder(encoder_outputs, encoder_hidden, target_tensor)
-
         loss = criterion(
             decoder_outputs.view(-1, decoder_outputs.size(-1)), target_tensor.view(-1)
         )
         loss.backward()
-
         encoder_optimizer.step()
         decoder_optimizer.step()
 
@@ -48,10 +46,9 @@ def train(
     decoder: AttentionDecoderRNN,
     num_epochs: int,
     learning_rate: float = 0.0001,
-    print_log_frequency: int = 100,
+    print_log_frequency: int = 2,
 ):
     start_time = time.time()
-
     encoder_optimizer = optim.Adam(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.Adam(encoder.parameters(), lr=learning_rate)
 
@@ -71,7 +68,8 @@ def train(
         if epoch % print_log_frequency == 0:
             average_loss = log_loss / print_log_frequency
             progress = epoch / num_epochs
-            LOGGER.info(f"[{log_time(start_time, progress)}] - {average_loss:.4f}")
+            LOGGER.info(f"[{log_time(start_time, progress)}]: {average_loss:.4f}")
+            log_loss = 0
 
 
 if __name__ == "__main__":
@@ -79,15 +77,15 @@ if __name__ == "__main__":
     batch_size = 16
     num_epochs = 10
     dropout_rate = 0.2
-    device = "cpu"
+    device = "mps" if torch.backends.mps.is_available() else "cpu"
 
     dataloader_instance = TrainDataloader(batch_size, device)
     dataloader = dataloader_instance.dataloader
     input_langauge = dataloader_instance.input_language
     output_language = dataloader_instance.output_language
-
     encoder = EncoderRNN(input_langauge.num_words, hidden_size, dropout_rate).to(device)
     decoder = AttentionDecoderRNN(
         hidden_size, output_language.num_words, dropout_rate, device
     ).to(device)
+
     train(dataloader, encoder, decoder, num_epochs)

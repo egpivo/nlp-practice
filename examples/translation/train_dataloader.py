@@ -22,8 +22,8 @@ class TrainDataloader:
     @property
     def dataloader(self) -> DataLoader:
         n = len(self.pairs)
-        input_ids = np.zeros((n, MAX_LENGTH + 1), dtype=np.int32)
-        target_ids = np.zeros((n, MAX_LENGTH + 1), dtype=np.int32)
+        input_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
+        target_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
 
         for index, (input, target) in enumerate(self.pairs):
             inputs = index_from_sentence(self.input_language, input)

@@ -11,7 +11,7 @@ class EncoderRNN(nn.Module):
 
         self.hidden_size = hidden_size
         self.embedding = nn.Embedding(input_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size)
+        self.gru = nn.GRU(hidden_size, hidden_size, batch_first=True)
         self.dropout = nn.Dropout(dropout_rate)
 
     def forward(self, input: torch.Tensor) -> tuple[torch.Tensor]:
@@ -108,7 +108,7 @@ class AttentionDecoderRNN(nn.Module):
         self.attention = BahadanauAttention(self.hidden_size)
 
         self.dropout = nn.Dropout(self.dropout_rate)
-        self.gru = nn.GRU(self.hidden_size, self.hidden_size)
+        self.gru = nn.GRU(2 * self.hidden_size, self.hidden_size, batch_first=True)
         self.output_layer = nn.Linear(self.hidden_size, self.output_size)
         self.device = device
 
@@ -131,7 +131,7 @@ class AttentionDecoderRNN(nn.Module):
             decoder_outputs.append(decoder_output)
             attentions.append(attention_weights)
 
-            if target_tensor:
+            if target_tensor is not None:
                 decoder_input = target_tensor[:, i].unsqueeze(1)
             else:
                 _, top_i = decoder_output.topk(1)
@@ -147,7 +147,6 @@ class AttentionDecoderRNN(nn.Module):
     ) -> tuple[torch.Tensor]:
         embedding = self.dropout(self.embedding(input))
         query = hidden.permute(1, 0, 2)
-
         context, attention_weights = self.attention(query, encoder_outputs)
         input_gru = torch.cat((embedding, context), dim=2)
 

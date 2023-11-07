@@ -80,9 +80,9 @@ if __name__ == "__main__":
 
     dataloader_instance = TrainDataloader(batch_size, device)
     dataloader = dataloader_instance.dataloader
-    input_langauge = dataloader_instance.input_language
+    input_language = dataloader_instance.input_language
     output_language = dataloader_instance.output_language
-    encoder = EncoderRNN(input_langauge.num_words, hidden_size, dropout_rate).to(device)
+    encoder = EncoderRNN(input_language.num_words, hidden_size, dropout_rate).to(device)
     decoder = AttentionDecoderRNN(
         hidden_size, output_language.num_words, dropout_rate, device
     ).to(device)

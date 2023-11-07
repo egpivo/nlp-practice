@@ -1,5 +1,8 @@
 from collections import defaultdict
 
+import torch
+
+from examples import EOS_TOKEN, MAX_LENGTH
 from examples.translation.utils import normalize_string, read_file
 
 
@@ -48,3 +51,15 @@ class DataReader:
             input_language = LanguageData(self.first_language)
             output_language = LanguageData(self.second_language)
         return input_language, output_language, pairs
+
+
+def index_from_sentence(language: LanguageData, sentence: str) -> list[int]:
+    return [language.word_to_index[word] for word in sentence.split(" ")][:MAX_LENGTH]
+
+
+def index_tensor_from_sentence(
+    language: LanguageData, sentence: str, device: str = "cpu"
+) -> torch.tensor:
+    indexes = index_from_sentence(language, sentence)
+    indexes.append(EOS_TOKEN)
+    return torch.tensor(indexes, dtype=torch.long, device=device).view(1, -1)

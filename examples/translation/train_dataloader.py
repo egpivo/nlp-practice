@@ -3,12 +3,8 @@ import torch
 from torch.utils.data import DataLoader, RandomSampler, TensorDataset
 
 from examples.translation import EOS_TOKEN, MAX_LENGTH
-from examples.translation.data_handler import LanguageData
+from examples.translation.data_handler import index_from_sentence
 from examples.translation.preprocessor import Preprocessor
-
-
-def index_from_sentence(language: LanguageData, sentence: str):
-    return [language.word_to_index[word] for word in sentence.split(" ")][:MAX_LENGTH]
 
 
 class TrainDataloader:

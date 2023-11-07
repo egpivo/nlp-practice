@@ -1,4 +1,4 @@
-FROM python:3.9-buster as builder
+FROM python:3.10-buster as builder
 
 RUN pip install --no-cache-dir --user poetry==1.6.1
 
@@ -15,11 +15,11 @@ RUN touch README.md
 
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
-FROM python:3.11-slim-buster as runtime
+FROM python:3.10-slim-buster as runtime
 ENV VIRTUAL_ENV=/llm_service/.venv \
-    PATH="/llm_service/.venv/bin:$PATH"
+    PATH="/llm/.venv/bin:$PATH"
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
-COPY llm_service /llm_service
+COPY llm /llm
 
-ENTRYPOINT ["python", "-m", "llm_service.main"]
+ENTRYPOINT ["python", "-m", "llm.main"]

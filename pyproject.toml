@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "llm-service"
+name = "llm-practice"
 version = "0.0.1"
 description = ""
 authors = ["Joseph Wang <egpivo@gmail.com>"]
@@ -32,10 +32,7 @@ poethepoet = "^0.15.0"
 coverage = { extras = ["toml"], version = "^6.4.4" }
 pre-commit = "^2.20.0"
 python-dotenv = "^1.0.0"
-poetry-bumpversion = "^0.3.0"
 
-
-[tool.poetry_bumpversion.file."promotion_llm/__init__.py"]
 
 [build-system]
 requires = ["poetry-core"]

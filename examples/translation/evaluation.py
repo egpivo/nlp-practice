@@ -62,9 +62,9 @@ if __name__ == "__main__":
     decoder.eval()
     input_sentence, answer = random.choice(dataloader_instance.pairs)
 
-    tanslated_sentence = evaluate(
+    translated_sentence = evaluate(
         encoder, decoder, input_sentence, input_language, output_language
     )
     LOGGER.info(
-        f"Translate {input_sentence} to {''.join(tanslated_sentence)} | True: {answer}"
+        f"Translate {input_sentence} to {''.join(translated_sentence)} | True: {answer}"
     )

@@ -8,7 +8,7 @@ ENV POETRY_NO_INTERACTION=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache\
     PATH="${PATH}:/root/.local/bin"
 
-WORKDIR /llm_service
+WORKDIR /nlp-practice
 
 COPY pyproject.toml poetry.lock ./
 RUN touch README.md
@@ -16,8 +16,9 @@ RUN touch README.md
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
 FROM python:3.10-slim-buster as runtime
-ENV VIRTUAL_ENV=/llm_service/.venv \
-    PATH="/llm/.venv/bin:$PATH"
+ENV VIRTUAL_ENV=/nlp_practice/.venv \
+    PATH="/nlp-practice/.venv/bin:$PATH" \
+    PYTHONPATH="${PYTHONPATH}:/nlp-practice"
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 COPY llm /llm

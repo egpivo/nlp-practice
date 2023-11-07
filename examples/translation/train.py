@@ -29,9 +29,7 @@ def train_per_epoch(
         decoder_optimizer.zero_grad()
         encoder_outputs, encoder_hidden = encoder(input_tensor)
         decoder_outputs, _, _ = decoder(encoder_outputs, encoder_hidden, target_tensor)
-        decoder_outputs = torch.nan_to_num(
-            decoder_outputs.view(-1, decoder_outputs.size(-1))
-        )
+        decoder_outputs = decoder_outputs.view(-1, decoder_outputs.size(-1))
         loss = criterion(decoder_outputs, target_tensor.view(-1))
         loss.backward()
         encoder_optimizer.step()
@@ -47,7 +45,7 @@ def train(
     decoder: AttentionDecoderRNN,
     num_epochs: int,
     learning_rate: float = 0.0001,
-    print_log_frequency: int = 2,
+    print_log_frequency: int = 10,
 ):
     start_time = time.time()
     encoder_optimizer = optim.Adam(encoder.parameters(), lr=learning_rate)
@@ -65,7 +63,6 @@ def train(
             criterion,
         )
         log_loss += loss
-
         if epoch % print_log_frequency == 0:
             average_loss = log_loss / print_log_frequency
             progress = epoch / num_epochs
@@ -75,10 +72,11 @@ def train(
 
 if __name__ == "__main__":
     hidden_size = 128
-    batch_size = 16
-    num_epochs = 10
+    batch_size = 32
+    num_epochs = 100
     dropout_rate = 0.2
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    checkpoint_path = "seq2seq.pt"
+    device = "cpu"
 
     dataloader_instance = TrainDataloader(batch_size, device)
     dataloader = dataloader_instance.dataloader
@@ -90,3 +88,12 @@ if __name__ == "__main__":
     ).to(device)
 
     train(dataloader, encoder, decoder, num_epochs)
+
+    LOGGER.info(f"Save the model state dicts to {checkpoint_path}")
+    torch.save(
+        {
+            "encoder_state_dict": encoder.state_dict(),
+            "decoder_state_dict": decoder.state_dict(),
+        },
+        checkpoint_path,
+    )

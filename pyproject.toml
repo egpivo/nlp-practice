@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "llm-practice"
+name = "nlp-practice"
 version = "0.0.1"
 description = ""
 authors = ["Joseph Wang <egpivo@gmail.com>"]

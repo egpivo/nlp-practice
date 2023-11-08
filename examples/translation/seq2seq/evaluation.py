@@ -4,9 +4,12 @@ import random
 import torch
 
 from examples import EOS_TOKEN
-from examples.translation.data_handler import LanguageData, index_tensor_from_sentence
-from examples.translation.seq2seq import AttentionDecoderRNN, EncoderRNN
-from examples.translation.train_dataloader import TrainDataloader
+from examples.translation.seq2seq.data_handler import (
+    LanguageData,
+    index_tensor_from_sentence,
+)
+from examples.translation.seq2seq.dataloader import TrainDataloader
+from examples.translation.seq2seq.seq2seq import AttentionDecoderRNN, EncoderRNN
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
@@ -18,7 +21,7 @@ def evaluate(
     sentence: str,
     input_language: LanguageData,
     output_language: LanguageData,
-):
+) -> list[str]:
     with torch.no_grad():
         input_indexes = index_tensor_from_sentence(input_language, sentence)
         encoder_outputs, encoder_hidden = encoder(input_indexes)
@@ -66,5 +69,5 @@ if __name__ == "__main__":
         encoder, decoder, input_sentence, input_language, output_language
     )
     LOGGER.info(
-        f"Translate {input_sentence} to {''.join(translated_sentence)} | True: {answer}"
+        f"Translate {input_sentence} to {' '.join(translated_sentence)} | True: {answer}"
     )

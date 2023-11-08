@@ -3,7 +3,7 @@ from collections import defaultdict
 import torch
 
 from examples import EOS_TOKEN, MAX_LENGTH
-from examples.translation.utils import normalize_string, read_file
+from examples.translation.seq2seq.utils import normalize_string, read_file
 
 
 class LanguageData:

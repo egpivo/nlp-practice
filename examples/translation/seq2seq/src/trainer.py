@@ -47,8 +47,10 @@ class Trainer:
             decoder_outputs, _, _ = self.decoder(
                 encoder_outputs, encoder_hidden, target_tensor
             )
-            decoder_outputs = decoder_outputs.view(-1, decoder_outputs.size(-1))
-            loss = criterion(decoder_outputs, target_tensor.view(-1))
+            loss = criterion(
+                decoder_outputs.view(-1, decoder_outputs.size(-1)),
+                target_tensor.view(-1),
+            )
             loss.backward()
             encoder_optimizer.step()
             decoder_optimizer.step()

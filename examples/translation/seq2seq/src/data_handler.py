@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import torch
 
-from examples.translation.seq2seq.src import EOS_TOKEN, MAX_LENGTH
+from examples.translation.seq2seq.src import EOS_TOKEN
 from examples.translation.seq2seq.src.utils import normalize_string, read_file
 
 
@@ -54,7 +54,7 @@ class DataReader:
 
 
 def index_from_sentence(language: LanguageData, sentence: str) -> list[int]:
-    return [language.word_to_index[word] for word in sentence.split(" ")][:MAX_LENGTH]
+    return [language.word_to_index[word] for word in sentence.split(" ")]
 
 
 def index_tensor_from_sentence(

@@ -4,7 +4,7 @@ EOS_TOKEN = 1
 MAX_LENGTH = 10
 
 ENGLISH_PREFIXES = (
-    "i am",
+    "i am ",
     "i m ",
     "he is",
     "he s ",
@@ -15,5 +15,5 @@ ENGLISH_PREFIXES = (
     "we are",
     "we re ",
     "they are",
-    "they re",
+    "they re ",
 )

@@ -6,7 +6,7 @@ import torch
 
 from examples.translation.seq2seq.src.dataloader import TrainDataloader
 from examples.translation.seq2seq.src.evaluator import Evaluator
-from examples.translation.seq2seq.src.seq2seq import AttentionDecoderRNN, EncoderRNN
+from examples.translation.seq2seq.src.seq2seq import EncoderRNN
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

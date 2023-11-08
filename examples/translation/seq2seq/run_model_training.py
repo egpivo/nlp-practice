@@ -39,7 +39,7 @@ def fetch_args() -> "argparse.Namespace":
         "--dropout_rate",
         type=float,
         dest="dropout_rate",
-        default=0.2,
+        default=0.1,
         help="The dropout rate",
     )
     arg_parser.add_argument(

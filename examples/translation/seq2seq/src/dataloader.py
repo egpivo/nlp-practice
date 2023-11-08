@@ -8,6 +8,16 @@ from examples.translation.seq2seq.src.preprocessor import Preprocessor
 
 
 class TrainDataloader:
+    """
+    Examples
+    --------
+    >>> from examples.translation.seq2seq.src.dataloader import TrainDataloader
+    >>> dataloader = TrainDataloader(64, "cpu").dataloader
+    >>> len(dataloader)
+    179
+    >>> next(iter(dataloader))[0].shape
+    """
+
     def __init__(self, batch_size: int, device: str) -> None:
         self.batch_size = batch_size
         self.device = device

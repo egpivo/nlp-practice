@@ -3,6 +3,16 @@ from examples.translation.seq2seq.src.utils import filter_pairs
 
 
 class Preprocessor:
+    """
+    Examples
+    --------
+    >>> import random
+    >>> from examples.translation.seq2seq.src.preprocessor import Preprocessor
+    >>> input_language, output_language, valid_pairs = Preprocessor(does_reverse=True).process()
+    >>> random.choice(valid_pairs)
+    ['il est mon epoux', 'he s my husband']
+    """
+
     def __init__(
         self,
         first_language: str = "eng",
@@ -21,4 +31,5 @@ class Preprocessor:
         for pair in valid_pairs:
             input_language.add_sentence(pair[0])
             output_language.add_sentence(pair[1])
+
         return input_language, output_language, valid_pairs

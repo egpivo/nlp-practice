@@ -2,7 +2,7 @@ import logging
 
 import torch
 
-from examples import EOS_TOKEN
+from examples.translation.seq2seq.src import EOS_TOKEN
 from examples.translation.seq2seq.src.data_handler import (
     LanguageData,
     index_tensor_from_sentence,

@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import torch
 
-from examples import EOS_TOKEN, MAX_LENGTH
+from examples.translation.seq2seq.src import EOS_TOKEN, MAX_LENGTH
 from examples.translation.seq2seq.src.utils import normalize_string, read_file
 
 

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from examples.translation import MAX_LENGTH, SOS_TOKEN
+from examples.translation.seq2seq.src import MAX_LENGTH, SOS_TOKEN
 
 
 class EncoderRNN(nn.Module):
@@ -121,7 +121,9 @@ class AttentionDecoderRNN(nn.Module):
         target_tensor: torch.Tensor = None,
     ) -> tuple[torch.Tensor]:
         batch_size = encoder_outputs.size(0)
-        decoder_input = torch.empty(batch_size, 1, dtype=torch.long, device=self.device)
+        decoder_input = torch.empty(
+            batch_size, 1, dtype=torch.long, device=self.device
+        ).fill_(SOS_TOKEN)
         decoder_hidden = encoder_hidden
         decoder_outputs = []
         attentions = []

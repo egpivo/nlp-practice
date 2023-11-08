@@ -4,9 +4,12 @@ from argparse import ArgumentParser
 
 import torch
 
-from examples.translation.seq2seq.src.dataloader import TrainDataloader
-from examples.translation.seq2seq.src.evaluator import Evaluator
-from examples.translation.seq2seq.src.seq2seq import AttentionDecoderRNN, EncoderRNN
+from examples.translation import (
+    AttentionDecoderRNN,
+    EncoderRNN,
+    Evaluator,
+    TrainDataloader,
+)
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
@@ -39,14 +42,16 @@ def run_evaluation_job(args: "argparse.Namespace") -> None:
     output_language = dataloader_instance.output_language
 
     encoder = EncoderRNN(
-        input_language.num_words, checkpoint["hidden_size"], checkpoint["dropout_rate"]
+        input_size=input_language.num_words,
+        hidden_size=checkpoint["hidden_size"],
+        dropout_rate=checkpoint["dropout_rate"],
     ).to(args.device)
 
     decoder = AttentionDecoderRNN(
-        checkpoint["hidden_size"],
-        output_language.num_words,
-        checkpoint["dropout_rate"],
-        args.device,
+        hidden_size=checkpoint["hidden_size"],
+        output_size=output_language.num_words,
+        dropout_rate=checkpoint["dropout_rate"],
+        device=args.device,
     ).to(args.device)
 
     encoder.load_state_dict(checkpoint["encoder_state_dict"])

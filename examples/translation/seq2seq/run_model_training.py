@@ -67,7 +67,7 @@ def fetch_args() -> "argparse.Namespace":
         "--does_proceed_training",
         action="store_true",
         dest="does_proceed_training",
-        help=f"Proceed model training based on the existing checkpoint",
+        help="Proceed model training based on the existing checkpoint",
     )
     return arg_parser.parse_args()
 
@@ -78,10 +78,15 @@ def run_training_job(args: "argparse.Namespace") -> None:
     input_language = dataloader_instance.input_language
     output_language = dataloader_instance.output_language
     encoder = EncoderRNN(
-        input_language.num_words, args.hidden_size, args.dropout_rate
+        input_size=input_language.num_words,
+        hidden_size=args.hidden_size,
+        dropout_rate=args.dropout_rate,
     ).to(args.device)
     decoder = AttentionDecoderRNN(
-        args.hidden_size, output_language.num_words, args.dropout_rate, args.device
+        hidden_size=args.hidden_size,
+        output_size=output_language.num_words,
+        dropout_rate=args.dropout_rate,
+        device=args.device,
     ).to(args.device)
 
     if Path(args.checkpoint_path).is_file() and args.does_proceed_training:

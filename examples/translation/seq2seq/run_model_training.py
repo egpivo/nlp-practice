@@ -4,9 +4,9 @@ from pathlib import Path
 
 import torch
 
-from examples.translation.seq2seq.dataloader import TrainDataloader
-from examples.translation.seq2seq.seq2seq import AttentionDecoderRNN, EncoderRNN
-from examples.translation.seq2seq.trainer import Trainer
+from examples.translation.seq2seq.src.dataloader import TrainDataloader
+from examples.translation.seq2seq.src.seq2seq import AttentionDecoderRNN, EncoderRNN
+from examples.translation.seq2seq.src.trainer import Trainer
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

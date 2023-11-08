@@ -1,3 +1,4 @@
+import logging
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -6,6 +7,9 @@ import torch
 from examples.translation.seq2seq.dataloader import TrainDataloader
 from examples.translation.seq2seq.seq2seq import AttentionDecoderRNN, EncoderRNN
 from examples.translation.seq2seq.trainer import Trainer
+
+logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger()
 
 
 def fetch_args() -> "argparse.Namespace":
@@ -81,6 +85,7 @@ def run_training_job(args: "argparse.Namespace") -> None:
     ).to(args.device)
 
     if Path(args.checkpoint_path).is_file() and args.does_proceed_training:
+        LOGGER.info(f"Loading the parameters in checkpoint: {args.checkpoint_path}")
         checkpoint = torch.load(args.checkpoint_path)
         encoder.load_state_dict(checkpoint["encoder_state_dict"])
         decoder.load_state_dict(checkpoint["decoder_state_dict"])
@@ -92,6 +97,7 @@ def run_training_job(args: "argparse.Namespace") -> None:
         num_epochs=args.num_epochs,
         learning_rate=args.learning_rate,
         checkpoint_path=args.checkpoint_path,
+        logger=LOGGER,
     )
     trainer.train()
     trainer.save()

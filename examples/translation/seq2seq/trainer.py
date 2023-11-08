@@ -9,9 +9,6 @@ from examples.translation.seq2seq.dataloader import TrainDataloader
 from examples.translation.seq2seq.seq2seq import AttentionDecoderRNN, EncoderRNN
 from examples.translation.seq2seq.utils import log_time
 
-logging.basicConfig(level=logging.INFO)
-LOGGER = logging.getLogger()
-
 
 class Trainer:
     def __init__(
@@ -22,6 +19,7 @@ class Trainer:
         num_epochs: int,
         checkpoint_path: str,
         learning_rate: float,
+        logger: logging.RootLogger,
         print_log_frequency: int = 10,
     ):
         self.train_dataloader = train_dataloader
@@ -30,6 +28,8 @@ class Trainer:
         self.num_epochs = num_epochs
         self.checkpoint_path = checkpoint_path
         self.learning_rate = learning_rate
+
+        self.logger = logger
         self.print_log_frequency = print_log_frequency
 
     def _train_per_epoch(
@@ -73,11 +73,13 @@ class Trainer:
             if epoch % self.print_log_frequency == 0:
                 average_loss = log_loss / self.print_log_frequency
                 progress = epoch / self.num_epochs
-                LOGGER.info(f"[{log_time(start_time, progress)}]: {average_loss:.4f}")
+                self.logger.info(
+                    f"[{log_time(start_time, progress)}]: {average_loss:.4f}"
+                )
                 log_loss = 0
 
     def save(self) -> None:
-        LOGGER.info(f"Save the model state dicts to {self.checkpoint_path}")
+        self.logger.info(f"Save the model state dicts to {self.checkpoint_path}")
         torch.save(
             {
                 "encoder_state_dict": self.encoder.state_dict(),

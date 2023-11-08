@@ -1,5 +1,5 @@
-from examples.translation.seq2seq.data_handler import DataReader, LanguageData
-from examples.translation.seq2seq.utils import filter_pairs
+from examples.translation.seq2seq.src.data_handler import DataReader, LanguageData
+from examples.translation.seq2seq.src.utils import filter_pairs
 
 
 class Preprocessor:

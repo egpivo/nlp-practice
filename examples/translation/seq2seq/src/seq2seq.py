@@ -12,7 +12,8 @@ class EncoderRNN(nn.Module):
         self.hidden_size = hidden_size
         self.embedding = nn.Embedding(input_size, hidden_size)
         self.gru = nn.GRU(hidden_size, hidden_size, batch_first=True)
-        self.dropout = nn.Dropout(dropout_rate)
+        self.dropout_rate = dropout_rate
+        self.dropout = nn.Dropout(self.dropout_rate)
 
     def forward(self, input: torch.Tensor) -> tuple[torch.Tensor]:
         embedding = self.dropout(self.embedding(input))
@@ -30,7 +31,8 @@ class DecoderRNN(nn.Module):
         self.embedding = nn.Embedding(output_size, hidden_size)
         self.gru = nn.GRU(hidden_size, hidden_size)
         self.output_layer = nn.Linear(hidden_size, output_size)
-        self.dropout = nn.Dropout(dropout_rate)
+        self.dropout_rate = dropout_rate
+        self.dropout = nn.Dropout(self.dropout_rate)
         self.device = device
 
     def forward(

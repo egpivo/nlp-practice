@@ -5,9 +5,9 @@ import torch
 import torch.nn as nn
 from torch import optim
 
-from examples.translation.seq2seq.dataloader import TrainDataloader
-from examples.translation.seq2seq.seq2seq import AttentionDecoderRNN, EncoderRNN
-from examples.translation.seq2seq.utils import log_time
+from examples.translation.seq2seq.src.dataloader import TrainDataloader
+from examples.translation.seq2seq.src.seq2seq import AttentionDecoderRNN, EncoderRNN
+from examples.translation.seq2seq.src.utils import log_time
 
 
 class Trainer:
@@ -84,6 +84,11 @@ class Trainer:
             {
                 "encoder_state_dict": self.encoder.state_dict(),
                 "decoder_state_dict": self.decoder.state_dict(),
+                "num_epochs": self.num_epochs,
+                "learning_rate": self.learning_rate,
+                "batch_size": self.train_dataloader.batch_size,
+                "dropout_rate": self.encoder.dropout_rate,
+                "hidden_size": self.encoder.hidden_size,
             },
             self.checkpoint_path,
         )

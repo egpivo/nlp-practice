@@ -3,8 +3,8 @@ import torch
 from torch.utils.data import DataLoader, RandomSampler, TensorDataset
 
 from examples.translation import EOS_TOKEN, MAX_LENGTH
-from examples.translation.seq2seq.data_handler import index_from_sentence
-from examples.translation.seq2seq.preprocessor import Preprocessor
+from examples.translation.seq2seq.src.data_handler import index_from_sentence
+from examples.translation.seq2seq.src.preprocessor import Preprocessor
 
 
 class TrainDataloader:

@@ -1,0 +1,102 @@
+from argparse import ArgumentParser
+from pathlib import Path
+
+import torch
+
+from examples.translation.seq2seq.dataloader import TrainDataloader
+from examples.translation.seq2seq.seq2seq import AttentionDecoderRNN, EncoderRNN
+from examples.translation.seq2seq.trainer import Trainer
+
+
+def fetch_args() -> "argparse.Namespace":
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument(
+        "--hidden_size",
+        type=int,
+        dest="hidden_size",
+        default=128,
+        help="The size of the hidden layer",
+    )
+    arg_parser.add_argument(
+        "--batch_size",
+        type=int,
+        dest="batch_size",
+        default=64,
+        help="The batch size",
+    )
+    arg_parser.add_argument(
+        "--num_epochs",
+        type=int,
+        dest="num_epochs",
+        default=100,
+        help="The number of epochs",
+    )
+    arg_parser.add_argument(
+        "--dropout_rate",
+        type=float,
+        dest="dropout_rate",
+        default=0.2,
+        help="The dropout rate",
+    )
+    arg_parser.add_argument(
+        "--learning_rate",
+        type=float,
+        dest="learning_rate",
+        default=0.001,
+        help="The learning rate",
+    )
+    arg_parser.add_argument(
+        "--checkpoint_path",
+        type=str,
+        dest="checkpoint_path",
+        default="seq2seq.pt",
+        help="The model checkpoint path",
+    )
+    arg_parser.add_argument(
+        "--device",
+        type=str,
+        dest="device",
+        default="cpu",
+        help="The device used in training",
+    )
+    arg_parser.add_argument(
+        "--does_proceed_training",
+        action="store_true",
+        dest="does_proceed_training",
+        help=f"Proceed model training based on the existing checkpoint",
+    )
+    return arg_parser.parse_args()
+
+
+def run_training_job(args: "argparse.Namespace") -> None:
+    dataloader_instance = TrainDataloader(args.batch_size, args.device)
+    dataloader = dataloader_instance.dataloader
+    input_language = dataloader_instance.input_language
+    output_language = dataloader_instance.output_language
+    encoder = EncoderRNN(
+        input_language.num_words, args.hidden_size, args.dropout_rate
+    ).to(args.device)
+    decoder = AttentionDecoderRNN(
+        args.hidden_size, output_language.num_words, args.dropout_rate, args.device
+    ).to(args.device)
+
+    if Path(args.checkpoint_path).is_file() and args.does_proceed_training:
+        checkpoint = torch.load(args.checkpoint_path)
+        encoder.load_state_dict(checkpoint["encoder_state_dict"])
+        decoder.load_state_dict(checkpoint["decoder_state_dict"])
+
+    trainer = Trainer(
+        train_dataloader=dataloader,
+        encoder=encoder,
+        decoder=decoder,
+        num_epochs=args.num_epochs,
+        learning_rate=args.learning_rate,
+        checkpoint_path=args.checkpoint_path,
+    )
+    trainer.train()
+    trainer.save()
+
+
+if __name__ == "__main__":
+    args = fetch_args()
+    run_training_job(args)

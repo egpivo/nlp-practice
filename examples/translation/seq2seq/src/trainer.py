@@ -32,45 +32,41 @@ class Trainer:
         self.logger = logger
         self.print_log_frequency = print_log_frequency
 
-    def _train_per_epoch(
-        self,
-        encoder_optimizer: optim.Optimizer,
-        decoder_optimizer: optim.Optimizer,
-        criterion: nn.modules.loss,
-    ) -> float:
+        self._criterion = nn.NLLLoss()
+        self._encoder_optimizer = optim.Adam(
+            self.encoder.parameters(), lr=self.learning_rate
+        )
+        self._decoder_optimizer = optim.Adam(
+            self.decoder.parameters(), lr=self.learning_rate
+        )
+
+    def _train_per_epoch(self) -> float:
         total_loss = 0
         for data in self.train_dataloader:
             input_tensor, target_tensor = data
-            encoder_optimizer.zero_grad()
-            decoder_optimizer.zero_grad()
+            self._encoder_optimizer.zero_grad()
+            self._decoder_optimizer.zero_grad()
             encoder_outputs, encoder_hidden = self.encoder(input_tensor)
             decoder_outputs, _, _ = self.decoder(
                 encoder_outputs, encoder_hidden, target_tensor
             )
-            loss = criterion(
+            loss = self._criterion(
                 decoder_outputs.view(-1, decoder_outputs.size(-1)),
                 target_tensor.view(-1),
             )
             loss.backward()
-            encoder_optimizer.step()
-            decoder_optimizer.step()
+            self._encoder_optimizer.step()
+            self._decoder_optimizer.step()
 
             total_loss += loss.item()
         return total_loss / len(self.train_dataloader)
 
     def train(self) -> None:
         start_time = time.time()
-        encoder_optimizer = optim.Adam(self.encoder.parameters(), lr=self.learning_rate)
-        decoder_optimizer = optim.Adam(self.encoder.parameters(), lr=self.learning_rate)
 
-        criterion = nn.NLLLoss()
         log_loss = 0
         for epoch in range(1, self.num_epochs + 1):
-            loss = self._train_per_epoch(
-                encoder_optimizer,
-                decoder_optimizer,
-                criterion,
-            )
+            loss = self._train_per_epoch()
             log_loss += loss
             if epoch % self.print_log_frequency == 0:
                 average_loss = log_loss / self.print_log_frequency

@@ -1,13 +1,12 @@
 import logging
-import time
 
 import torch
 import torch.nn as nn
 from torch import optim
+from tqdm import trange
 
 from examples.translation.seq2seq.src.dataloader import TrainDataloader
-from examples.translation.seq2seq.src.seq2seq import AttentionDecoderRNN, EncoderRNN
-from examples.translation.seq2seq.src.utils import log_time
+from examples.translation.seq2seq.src.seq2seq import Decoder, EncoderRNN
 
 
 class Trainer:
@@ -15,7 +14,7 @@ class Trainer:
         self,
         train_dataloader: TrainDataloader,
         encoder: EncoderRNN,
-        decoder: AttentionDecoderRNN,
+        decoder: Decoder,
         num_epochs: int,
         checkpoint_path: str,
         learning_rate: float,
@@ -61,20 +60,8 @@ class Trainer:
             total_loss += loss.item()
         return total_loss / len(self.train_dataloader)
 
-    def train(self) -> None:
-        start_time = time.time()
-
-        log_loss = 0
-        for epoch in range(1, self.num_epochs + 1):
-            loss = self._train_per_epoch()
-            log_loss += loss
-            if epoch % self.print_log_frequency == 0:
-                average_loss = log_loss / self.print_log_frequency
-                progress = epoch / self.num_epochs
-                self.logger.info(
-                    f"[{log_time(start_time, progress)}]: {average_loss:.4f}"
-                )
-                log_loss = 0
+    def train(self) -> list[float]:
+        return [self._train_per_epoch() for _ in trange(self.num_epochs)]
 
     def save(self) -> None:
         self.logger.info(f"Save the model state dicts to {self.checkpoint_path}")

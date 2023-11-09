@@ -6,7 +6,11 @@ import torch
 
 from examples.translation.seq2seq.src.dataloader import TrainDataloader
 from examples.translation.seq2seq.src.evaluator import Evaluator
-from examples.translation.seq2seq.src.seq2seq import EncoderRNN
+from examples.translation.seq2seq.src.seq2seq import (
+    AttentionDecoderRNN,
+    DecoderRNN,
+    EncoderRNN,
+)
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
@@ -28,6 +32,12 @@ def fetch_args() -> "argparse.Namespace":
         default="cpu",
         help="The device used in training",
     )
+    arg_parser.add_argument(
+        "--does_use_attention_decoder",
+        action="store_true",
+        dest="does_use_attention_decoder",
+        help="Whether using attention in decoder or not",
+    )
     return arg_parser.parse_args()
 
 
@@ -44,7 +54,10 @@ def run_evaluation_job(args: "argparse.Namespace") -> None:
         dropout_rate=checkpoint["dropout_rate"],
     ).to(args.device)
 
-    decoder = AttentionDecoderRNN(
+    decoder_class = (
+        AttentionDecoderRNN if args.does_use_attention_decoder else DecoderRNN
+    )
+    decoder = decoder_class(
         hidden_size=checkpoint["hidden_size"],
         output_size=output_language.num_words,
         dropout_rate=checkpoint["dropout_rate"],

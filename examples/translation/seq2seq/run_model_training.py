@@ -5,7 +5,11 @@ from pathlib import Path
 import torch
 
 from examples.translation.seq2seq.src.dataloader import TrainDataloader
-from examples.translation.seq2seq.src.seq2seq import AttentionDecoderRNN, EncoderRNN
+from examples.translation.seq2seq.src.seq2seq import (
+    AttentionDecoderRNN,
+    DecoderRNN,
+    EncoderRNN,
+)
 from examples.translation.seq2seq.src.trainer import Trainer
 
 logging.basicConfig(level=logging.INFO)
@@ -69,6 +73,12 @@ def fetch_args() -> "argparse.Namespace":
         dest="does_proceed_training",
         help="Proceed model training based on the existing checkpoint",
     )
+    arg_parser.add_argument(
+        "--does_use_attention_decoder",
+        action="store_true",
+        dest="does_use_attention_decoder",
+        help="Whether using attention in decoder or not",
+    )
     return arg_parser.parse_args()
 
 
@@ -82,7 +92,11 @@ def run_training_job(args: "argparse.Namespace") -> None:
         hidden_size=args.hidden_size,
         dropout_rate=args.dropout_rate,
     ).to(args.device)
-    decoder = AttentionDecoderRNN(
+
+    decoder_class = (
+        AttentionDecoderRNN if args.does_use_attention_decoder else DecoderRNN
+    )
+    decoder = decoder_class(
         hidden_size=args.hidden_size,
         output_size=output_language.num_words,
         dropout_rate=args.dropout_rate,
@@ -104,7 +118,7 @@ def run_training_job(args: "argparse.Namespace") -> None:
         checkpoint_path=args.checkpoint_path,
         logger=LOGGER,
     )
-    trainer.train()
+    _ = trainer.train()
     trainer.save()
 
 

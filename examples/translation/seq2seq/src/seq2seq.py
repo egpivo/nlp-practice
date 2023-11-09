@@ -21,7 +21,7 @@ class EncoderRNN(nn.Module):
         return output, hidden
 
 
-class DecoderRNN(nn.Module):
+class Decoder(nn.Module):
     def __init__(
         self, hidden_size: int, output_size: int, dropout_rate: float, device: str
     ) -> None:
@@ -40,7 +40,17 @@ class DecoderRNN(nn.Module):
         encoder_outputs: torch.Tensor,
         encoder_hidden: torch.Tensor,
         target_tensor: torch.Tensor = None,
-    ):
+    ) -> tuple[torch.Tensor]:
+        return NotImplemented
+
+
+class DecoderRNN(Decoder):
+    def forward(
+        self,
+        encoder_outputs: torch.Tensor,
+        encoder_hidden: torch.Tensor,
+        target_tensor: torch.Tensor = None,
+    ) -> tuple[torch.Tensor]:
         batch_size = encoder_outputs.size(0)
         decoder_input = torch.empty(
             batch_size, 1, dtype=torch.long, device=self.device
@@ -90,7 +100,7 @@ class BahadanauAttention(nn.Module):
         return context, weights
 
 
-class AttentionDecoderRNN(nn.Module):
+class AttentionDecoderRNN(Decoder):
     def __init__(
         self,
         hidden_size: int,
@@ -99,20 +109,16 @@ class AttentionDecoderRNN(nn.Module):
         device: str = "cpu",
         max_length: int = MAX_LENGTH,
     ) -> None:
-        super().__init__()
-
-        self.hidden_size = hidden_size
-        self.output_size = output_size
-        self.dropout_rate = dropout_rate
+        super().__init__(
+            hidden_size=hidden_size,
+            output_size=output_size,
+            dropout_rate=dropout_rate,
+            device=device,
+        )
         self.max_length = max_length
-
         self.embedding = nn.Embedding(self.output_size, self.hidden_size)
         self.attention = BahadanauAttention(self.hidden_size)
-
-        self.dropout = nn.Dropout(self.dropout_rate)
         self.gru = nn.GRU(2 * self.hidden_size, self.hidden_size, batch_first=True)
-        self.output_layer = nn.Linear(self.hidden_size, self.output_size)
-        self.device = device
 
     def forward(
         self,

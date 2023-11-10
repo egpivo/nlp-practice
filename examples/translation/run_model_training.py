@@ -54,7 +54,7 @@ def fetch_args() -> "argparse.Namespace":
         "--checkpoint_path",
         type=str,
         dest="checkpoint_path",
-        default="seq2seq.pt",
+        default="translation.pt",
         help="The model checkpoint path",
     )
     arg_parser.add_argument(
@@ -63,6 +63,13 @@ def fetch_args() -> "argparse.Namespace":
         dest="device",
         default="cpu",
         help="The device used in training",
+    )
+    arg_parser.add_argument(
+        "--data_bath_path",
+        type=str,
+        dest="data_bath_path",
+        default="./data/translation",
+        help="Data base path",
     )
     arg_parser.add_argument(
         "--does_proceed_training",
@@ -79,8 +86,10 @@ def fetch_args() -> "argparse.Namespace":
     return arg_parser.parse_args()
 
 
-def run_training_job(args: "argparse.Namespace") -> None:
-    dataloader_instance = TrainDataloader(args.batch_size, args.device)
+def run_training_job(args: "argparse.Namespace") -> list[float]:
+    dataloader_instance = TrainDataloader(
+        args.batch_size, args.device, args.data_bath_path
+    )
     dataloader = dataloader_instance.dataloader
     input_language = dataloader_instance.input_language
     output_language = dataloader_instance.output_language
@@ -115,8 +124,9 @@ def run_training_job(args: "argparse.Namespace") -> None:
         checkpoint_path=args.checkpoint_path,
         logger=LOGGER,
     )
-    _ = trainer.train()
+    loss = trainer.train()
     trainer.save()
+    return loss
 
 
 if __name__ == "__main__":

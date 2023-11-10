@@ -37,16 +37,16 @@ def normalize_string(string: str) -> str:
     return removed_punctuations.strip()
 
 
-def read_file(language1: str = "eng", language2: str = "fra") -> list[str]:
+def read_file(
+    base_path: str, language1: str = "eng", language2: str = "fra"
+) -> list[str]:
     """
     Examples
     --------
     >>> read_file()[0]
     'Go.\tVa !'
     """
-    with open(
-        f"./data/translation/{language1}-{language2}.txt", encoding="utf-8"
-    ) as file:
+    with open(f"{base_path}/{language1}-{language2}.txt", encoding="utf-8") as file:
         return file.read().strip().split("\n")
 
 

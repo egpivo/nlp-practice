@@ -18,11 +18,16 @@ class TrainDataloader:
     >>> next(iter(dataloader))[0].shape
     """
 
-    def __init__(self, batch_size: int, device: str) -> None:
+    def __init__(
+        self, batch_size: int, device: str, data_base_path: str = "./data/translation"
+    ) -> None:
         self.batch_size = batch_size
         self.device = device
         self.input_language, self.output_language, self.pairs = Preprocessor(
-            "eng", "fra", True
+            base_path=data_base_path,
+            first_language="eng",
+            second_language="fra",
+            does_reverse=True,
         ).process()
 
     @property

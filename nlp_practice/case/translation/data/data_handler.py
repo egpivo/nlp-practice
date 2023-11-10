@@ -29,16 +29,18 @@ class LanguageData:
 class DataReader:
     def __init__(
         self,
+        base_path: str,
         first_language: str = "eng",
         second_language: str = "fra",
         does_reverse: bool = False,
     ) -> None:
+        self.base_path = base_path
         self.first_language = first_language
         self.second_language = second_language
         self.does_reverse = does_reverse
 
     def read(self) -> tuple[LanguageData, LanguageData, list[list[str]]]:
-        lines = read_file(self.first_language, self.second_language)
+        lines = read_file(self.base_path, self.first_language, self.second_language)
         pairs = [
             [normalize_string(string) for string in line.split("\t")] for line in lines
         ]

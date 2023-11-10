@@ -15,17 +15,22 @@ class Preprocessor:
 
     def __init__(
         self,
+        base_path: str = "./data/translation",
         first_language: str = "eng",
         second_language: str = "fra",
         does_reverse: bool = False,
     ) -> None:
+        self.base_path = base_path
         self.first_language = first_language
         self.second_language = second_language
         self.does_reverse = does_reverse
 
     def process(self) -> tuple[LanguageData, LanguageData, list[list[str]]]:
         input_language, output_language, pairs = DataReader(
-            self.first_language, self.second_language, self.does_reverse
+            base_path=self.base_path,
+            first_language=self.first_language,
+            second_language=self.second_language,
+            does_reverse=self.does_reverse,
         ).read()
         valid_pairs = filter_pairs(pairs)
         for pair in valid_pairs:

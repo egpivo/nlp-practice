@@ -4,13 +4,10 @@ from argparse import ArgumentParser
 
 import torch
 
-from examples.translation.seq2seq.src.dataloader import TrainDataloader
-from examples.translation.seq2seq.src.evaluator import Evaluator
-from examples.translation.seq2seq.src.seq2seq import (
-    AttentionDecoderRNN,
-    DecoderRNN,
-    EncoderRNN,
-)
+from nlp_practice.case.translation.data.dataloader import TrainDataloader
+from nlp_practice.case.translation.evaluator import Evaluator
+from nlp_practice.case.translation.model.decoder import AttentionDecoderRNN, DecoderRNN
+from nlp_practice.case.translation.model.encoder import EncoderRNN
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

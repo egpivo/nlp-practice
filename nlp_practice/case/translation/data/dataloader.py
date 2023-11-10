@@ -2,16 +2,16 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, RandomSampler, TensorDataset
 
-from examples.translation.seq2seq.src import EOS_TOKEN, MAX_LENGTH
-from examples.translation.seq2seq.src.data_handler import index_from_sentence
-from examples.translation.seq2seq.src.preprocessor import Preprocessor
+from nlp_practice.case.translation import EOS_TOKEN, MAX_LENGTH
+from nlp_practice.case.translation.data.data_handler import index_from_sentence
+from nlp_practice.case.translation.data.preprocessor import Preprocessor
 
 
 class TrainDataloader:
     """
     Examples
     --------
-    >>> from examples.translation.seq2seq.src.dataloader import TrainDataloader
+    >>> from nlp_practice.case.translation.data.dataloader import TrainDataloader
     >>> dataloader = TrainDataloader(64, "cpu").dataloader
     >>> len(dataloader)
     179

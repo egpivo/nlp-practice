@@ -2,8 +2,8 @@ from collections import defaultdict
 
 import torch
 
-from examples.translation.seq2seq.src import EOS_TOKEN
-from examples.translation.seq2seq.src.utils import normalize_string, read_file
+from nlp_practice.case.translation import EOS_TOKEN
+from nlp_practice.case.translation.utils import normalize_string, read_file
 
 
 class LanguageData:

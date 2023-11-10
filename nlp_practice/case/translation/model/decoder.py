@@ -2,23 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from examples.translation.seq2seq.src import MAX_LENGTH, SOS_TOKEN
-
-
-class EncoderRNN(nn.Module):
-    def __init__(self, input_size: int, hidden_size: int, dropout_rate: float) -> None:
-        super().__init__()
-
-        self.hidden_size = hidden_size
-        self.embedding = nn.Embedding(input_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size, batch_first=True)
-        self.dropout_rate = dropout_rate
-        self.dropout = nn.Dropout(self.dropout_rate)
-
-    def forward(self, input: torch.Tensor) -> tuple[torch.Tensor]:
-        embedding = self.dropout(self.embedding(input))
-        output, hidden = self.gru(embedding)
-        return output, hidden
+from nlp_practice.case.translation import MAX_LENGTH, SOS_TOKEN
+from nlp_practice.case.translation.model.attention import BahadanauAttention
 
 
 class Decoder(nn.Module):
@@ -81,23 +66,6 @@ class DecoderRNN(Decoder):
         output, hidden = self.gru(F.relu(embedding), hidden)
         logits = self.output_layer(output)
         return logits, hidden
-
-
-class BahadanauAttention(nn.Module):
-    def __init__(self, hidden_size: int) -> None:
-        super().__init__()
-
-        self.w = nn.Linear(hidden_size, hidden_size)
-        self.u = nn.Linear(hidden_size, hidden_size)
-        self.v = nn.Linear(hidden_size, 1)
-
-    def forward(self, query: torch.tensor, keys: torch.tensor) -> tuple[torch.tensor]:
-        scores = self.v(torch.tanh(self.w(query) + self.u(keys)))
-        scores = scores.squeeze(2).unsqueeze(1)
-
-        weights = F.softmax(scores, dim=-1)
-        context = torch.bmm(weights, keys)
-        return context, weights
 
 
 class AttentionDecoderRNN(Decoder):

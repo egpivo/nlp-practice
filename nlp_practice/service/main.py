@@ -1,8 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
-
-from llm.api.v1 import openai
-from llm.core.settings.config import Settings
+from llm.service.api.v1 import openai
+from llm.service.core.settings.config import Settings
 
 app = FastAPI(
     title=Settings().app_name,

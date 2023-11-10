@@ -2,7 +2,7 @@ import re
 import unicodedata
 from io import open
 
-from examples.translation.seq2seq.src import ENGLISH_PREFIXES, MAX_LENGTH
+from nlp_practice.case.translation import ENGLISH_PREFIXES, MAX_LENGTH
 
 
 def remove_accents(string: str) -> str:

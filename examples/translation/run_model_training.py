@@ -4,13 +4,10 @@ from pathlib import Path
 
 import torch
 
-from examples.translation.seq2seq.src.dataloader import TrainDataloader
-from examples.translation.seq2seq.src.seq2seq import (
-    AttentionDecoderRNN,
-    DecoderRNN,
-    EncoderRNN,
-)
-from examples.translation.seq2seq.src.trainer import Trainer
+from nlp_practice.case.translation.data.dataloader import TrainDataloader
+from nlp_practice.case.translation.model.decoder import AttentionDecoderRNN, DecoderRNN
+from nlp_practice.case.translation.model.encoder import EncoderRNN
+from nlp_practice.case.translation.trainer import Trainer
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

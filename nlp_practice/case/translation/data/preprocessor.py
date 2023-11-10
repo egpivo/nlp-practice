@@ -1,5 +1,5 @@
-from examples.translation.seq2seq.src.data_handler import DataReader, LanguageData
-from examples.translation.seq2seq.src.utils import filter_pairs
+from nlp_practice.case.translation.data.data_handler import DataReader, LanguageData
+from nlp_practice.case.translation.utils import filter_pairs
 
 
 class Preprocessor:
@@ -7,7 +7,7 @@ class Preprocessor:
     Examples
     --------
     >>> import random
-    >>> from examples.translation.seq2seq.src.preprocessor import Preprocessor
+    >>> from nlp_practice.case.translation.data.preprocessor import Preprocessor
     >>> input_language, output_language, valid_pairs = Preprocessor(does_reverse=True).process()
     >>> random.choice(valid_pairs)
     ['il est mon epoux', 'he s my husband']

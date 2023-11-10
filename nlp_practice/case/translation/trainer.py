@@ -5,8 +5,9 @@ import torch.nn as nn
 from torch import optim
 from tqdm import trange
 
-from examples.translation.seq2seq.src.dataloader import TrainDataloader
-from examples.translation.seq2seq.src.seq2seq import Decoder, EncoderRNN
+from nlp_practice.case.translation.data.dataloader import TrainDataloader
+from nlp_practice.case.translation.model.decoder import Decoder
+from nlp_practice.case.translation.model.encoder import EncoderRNN
 
 
 class Trainer:

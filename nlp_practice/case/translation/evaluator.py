@@ -2,12 +2,13 @@ import logging
 
 import torch
 
-from examples.translation.seq2seq.src import EOS_TOKEN
-from examples.translation.seq2seq.src.data_handler import (
+from nlp_practice.case.translation import EOS_TOKEN
+from nlp_practice.case.translation.data.data_handler import (
     LanguageData,
     index_tensor_from_sentence,
 )
-from examples.translation.seq2seq.src.seq2seq import AttentionDecoderRNN, EncoderRNN
+from nlp_practice.case.translation.model.decoder import AttentionDecoderRNN
+from nlp_practice.case.translation.model.encoder import EncoderRNN
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

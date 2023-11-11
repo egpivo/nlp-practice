@@ -68,7 +68,7 @@ def fetch_args() -> "argparse.Namespace":
         "--data_bath_path",
         type=str,
         dest="data_bath_path",
-        default="./data/translation",
+        default="./examples/data/translation",
         help="Data base path",
     )
     arg_parser.add_argument(

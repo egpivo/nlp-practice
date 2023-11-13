@@ -65,10 +65,10 @@ def fetch_args() -> "argparse.Namespace":
         help="The device used in training",
     )
     arg_parser.add_argument(
-        "--data_bath_path",
+        "--data_base_path",
         type=str,
-        dest="data_bath_path",
-        default="./examples/data/translation",
+        dest="data_base_path",
+        default="./../data",
         help="Data base path",
     )
     arg_parser.add_argument(
@@ -88,7 +88,7 @@ def fetch_args() -> "argparse.Namespace":
 
 def run_training_job(args: "argparse.Namespace") -> list[float]:
     dataloader_instance = TrainDataloader(
-        args.batch_size, args.device, args.data_bath_path
+        args.batch_size, args.device, args.data_base_path
     )
     dataloader = dataloader_instance.dataloader
     input_language = dataloader_instance.input_language

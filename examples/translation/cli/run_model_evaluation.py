@@ -30,10 +30,10 @@ def fetch_args() -> "argparse.Namespace":
         help="The device used in training",
     )
     arg_parser.add_argument(
-        "--data_bath_path",
+        "--data_base_path",
         type=str,
-        dest="data_bath_path",
-        default="./data/translation",
+        dest="data_base_path",
+        default="./../data",
         help="Data base path",
     )
     arg_parser.add_argument(
@@ -49,7 +49,7 @@ def run_evaluation_job(args: "argparse.Namespace") -> None:
     checkpoint = torch.load(args.checkpoint_path)
 
     dataloader_instance = TrainDataloader(
-        checkpoint["batch_size"], args.device, args.data_bath_path
+        checkpoint["batch_size"], args.device, args.data_base_path
     )
     input_language = dataloader_instance.input_language
     output_language = dataloader_instance.output_language

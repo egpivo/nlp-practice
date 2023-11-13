@@ -1,3 +1,4 @@
+import os
 import re
 import unicodedata
 from io import open
@@ -46,8 +47,15 @@ def read_file(
     >>> read_file()[0]
     'Go.\tVa !'
     """
-    with open(f"{base_path}/{language1}-{language2}.txt", encoding="utf-8") as file:
-        return file.read().strip().split("\n")
+    file_name = f"{base_path}/{language1}-{language2}.txt"
+    try:
+        with open(file_name, encoding="utf-8") as file:
+            return file.read().strip().split("\n")
+    except FileNotFoundError as e:
+        current_directory = os.getcwd()
+        raise FileNotFoundError(
+            f"The file `{file_name}` was not found in the current directory `{current_directory}`. Error: {e}"
+        )
 
 
 def is_valid_pair(pair: list[str], prefixes: tuple[str] = ENGLISH_PREFIXES) -> bool:

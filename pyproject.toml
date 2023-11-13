@@ -20,6 +20,7 @@ torch = [
   {markers = "sys_platform == 'darwin' and platform_machine == 'x86_64'", url = "https://download.pytorch.org/whl/cpu/torch-2.1.0-cp310-none-macosx_10_9_x86_64.whl"},
   {markers = "sys_platform == 'linux'", url="https://download.pytorch.org/whl/cpu/torch-2.1.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl#sha256=8132efb782cd181cc2dcca5e58effbe4217cdb2581206ac71466d535bf778867"}
 ]
+seaborn = "^0.13.0"
 
 
 [tool.poetry.group.dev.dependencies]

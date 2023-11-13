@@ -1,3 +1,4 @@
+import argparse
 import logging
 from argparse import ArgumentParser
 from pathlib import Path
@@ -13,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
 
 
-def fetch_args() -> "argparse.Namespace":
+def fetch_args() -> argparse.Namespace:
     arg_parser = ArgumentParser()
     arg_parser.add_argument(
         "--hidden_size",
@@ -86,7 +87,7 @@ def fetch_args() -> "argparse.Namespace":
     return arg_parser.parse_args()
 
 
-def run_training_job(args: "argparse.Namespace") -> list[float]:
+def run_training_job(args: argparse.Namespace) -> list[float]:
     dataloader_instance = TrainDataloader(
         args.batch_size, args.device, args.data_base_path
     )

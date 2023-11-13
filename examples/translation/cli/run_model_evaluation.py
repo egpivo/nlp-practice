@@ -1,3 +1,4 @@
+import argparse
 import logging
 import random
 from argparse import ArgumentParser
@@ -13,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
 
 
-def fetch_args() -> "argparse.Namespace":
+def fetch_args() -> argparse.Namespace:
     arg_parser = ArgumentParser()
     arg_parser.add_argument(
         "--checkpoint_path",
@@ -45,7 +46,7 @@ def fetch_args() -> "argparse.Namespace":
     return arg_parser.parse_args()
 
 
-def run_evaluation_job(args: "argparse.Namespace") -> None:
+def run_evaluation_job(args: argparse.Namespace) -> None:
     checkpoint = torch.load(args.checkpoint_path)
 
     dataloader_instance = TrainDataloader(

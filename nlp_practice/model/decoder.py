@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,7 +8,7 @@ from nlp_practice.case.translation import MAX_LENGTH, SOS_TOKEN
 from nlp_practice.model.attention import BahadanauAttention
 
 
-class Decoder(nn.Module):
+class Decoder(ABC, nn.Module):
     def __init__(
         self, hidden_size: int, output_size: int, dropout_rate: float, device: str
     ) -> None:
@@ -22,13 +24,14 @@ class Decoder(nn.Module):
         self.output_layer = nn.Linear(self.hidden_size, self.output_size)
         self.dropout = nn.Dropout(self.dropout_rate)
 
+    @abstractmethod
     def forward(
         self,
         encoder_outputs: torch.Tensor,
         encoder_hidden: torch.Tensor,
         target_tensor: torch.Tensor = None,
     ) -> tuple[torch.Tensor]:
-        return NotImplemented
+        return NotImplementedError
 
 
 class DecoderRNN(Decoder):

@@ -7,8 +7,8 @@ from nlp_practice.case.translation.data.data_handler import (
     LanguageData,
     index_tensor_from_sentence,
 )
-from nlp_practice.case.translation.model.decoder import AttentionDecoderRNN
-from nlp_practice.case.translation.model.encoder import EncoderRNN
+from nlp_practice.model.decoder import AttentionDecoderRNN
+from nlp_practice.model.encoder import EncoderRNN
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

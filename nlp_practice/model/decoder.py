@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from nlp_practice.case.translation import MAX_LENGTH, SOS_TOKEN
-from nlp_practice.case.translation.model.attention import BahadanauAttention
+from nlp_practice.model.attention import BahadanauAttention
 
 
 class Decoder(nn.Module):

@@ -6,8 +6,8 @@ from torch import optim
 from tqdm import trange
 
 from nlp_practice.case.translation.data.dataloader import TrainDataloader
-from nlp_practice.case.translation.model.decoder import Decoder
-from nlp_practice.case.translation.model.encoder import EncoderRNN
+from nlp_practice.model.decoder import Decoder
+from nlp_practice.model.encoder import EncoderRNN
 
 
 class Trainer:

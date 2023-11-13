@@ -5,9 +5,9 @@ from argparse import ArgumentParser
 import torch
 
 from nlp_practice.case.translation.data.dataloader import TrainDataloader
-from nlp_practice.case.translation.evaluator import Evaluator
-from nlp_practice.case.translation.model.decoder import AttentionDecoderRNN, DecoderRNN
-from nlp_practice.case.translation.model.encoder import EncoderRNN
+from nlp_practice.case.translation.evalution.evaluator import Evaluator
+from nlp_practice.model.decoder import AttentionDecoderRNN, DecoderRNN
+from nlp_practice.model.encoder import EncoderRNN
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

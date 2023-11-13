@@ -28,12 +28,11 @@ jobs:
         pip install .
     - name: Test with pytest
       run: |
-        pytest
+         pytest --cov nlp_pracice --cov tests
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

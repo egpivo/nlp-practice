@@ -1,8 +1,11 @@
+import os
+
 import pytest
 import torch
 
 from nlp_practice.case.translation import EOS_TOKEN
 from nlp_practice.case.translation.data.data_handler import (
+    DataReader,
     LanguageData,
     index_from_sentence,
     index_tensor_from_sentence,
@@ -58,6 +61,29 @@ def test_language_data():
     language_data.add_word("test")
     language_data.add_word("sentence.")
     return language_data
+
+
+def test_data_reader_read():
+    file_contents = ["Go.\tVa !", "Hello.\tSalut !", "How are you?\tComment ça va ?"]
+    test_base_path = "."
+    test_file_path = os.path.join(test_base_path, "eng-fra.txt")
+    with open(test_file_path, "w", encoding="utf-8") as test_file:
+        test_file.write("\n".join(file_contents))
+
+    data_reader = DataReader(
+        test_base_path, first_language="eng", second_language="fra"
+    )
+    input_language, output_language, pairs = data_reader.read()
+
+    # Assertions
+    assert isinstance(input_language, LanguageData)
+    assert isinstance(output_language, LanguageData)
+    assert isinstance(pairs, list)
+    assert len(pairs) == 3
+    assert pairs[0] == ["go", "va !"]
+    assert pairs[1] == ["hello", "salut !"]
+
+    os.remove(test_file_path)
 
 
 def test_index_from_sentence(test_language_data):

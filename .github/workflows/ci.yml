@@ -28,7 +28,7 @@ jobs:
         pip install .
     - name: Test with pytest
       run: |
-         pytest --cov nlp_pracice --cov tests
+         pytest --cov ./
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       env:

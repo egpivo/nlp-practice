@@ -1,14 +1,11 @@
 import logging
+from typing import Generator
 
 import torch
+from torch.utils.data import DataLoader
+from torchmetrics.text.rouge import ROUGEScore
 
-from nlp_practice.case.translation import EOS_TOKEN
-from nlp_practice.case.translation.data.data_handler import (
-    LanguageData,
-    index_tensor_from_sentence,
-)
-from nlp_practice.model.decoder import AttentionDecoderRNN
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.case.translation.Inference.predictor import Predictor
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
@@ -17,31 +14,61 @@ LOGGER = logging.getLogger()
 class Evaluator:
     def __init__(
         self,
-        encoder: EncoderRNN,
-        decoder: AttentionDecoderRNN,
-        input_language: LanguageData,
-        output_language: LanguageData,
+        test_dataloader: DataLoader,
+        predictor: Predictor,
     ) -> None:
-        self.encoder = encoder
-        self.decoder = decoder
-        self.input_language = input_language
-        self.output_language = output_language
+        self.test_dataloader = test_dataloader
+        self.predictor = predictor
 
-    def evaluate(self, sentence: str) -> list[str]:
-        with torch.no_grad():
-            input_indexes = index_tensor_from_sentence(self.input_language, sentence)
-            encoder_outputs, encoder_hidden = self.encoder(input_indexes)
-            decoder_outputs, decoder_hidden, _ = self.decoder(
-                encoder_outputs, encoder_hidden
-            )
+    @staticmethod
+    def _calculate_rouge1_by_batch(
+        predicted: torch.Tensor, target: torch.Tensor, metric: str
+    ) -> Generator[float, None, None]:
+        converter = lambda tensor: " ".join([str(id.item()) for id in tensor])
+        for predict_ids, target_ids in zip(predicted, target):
+            nonzero_index = target_ids.count_nonzero()
+            predicts = converter(predict_ids[:nonzero_index])
+            targets = converter(target_ids[:nonzero_index])
+            yield ROUGEScore(rouge_keys=("rouge1",))(predicts, targets)[
+                f"rouge1_{metric}"
+            ]
 
-            _, selected_ids = decoder_outputs.topk(1)
-            decoded_ids = selected_ids.squeeze()
+    @staticmethod
+    def _calculate_accuracy(
+        predicted: torch.Tensor, target: torch.Tensor
+    ) -> Generator[torch.Tensor, None, None]:
+        for predict_ids, target_ids in zip(predicted, target):
+            nonzero_index = target_ids.count_nonzero()
+            yield torch.equal(predict_ids[:nonzero_index], target_ids[:nonzero_index])
 
-            decoded_words = []
-            for index in decoded_ids:
-                if index.item() == EOS_TOKEN:
-                    decoded_words.append("<EOS>")
-                    break
-                decoded_words.append(self.output_language.index_to_word[index.item()])
-            return decoded_words
+    def _calculate_average_rough1(self, metric: str) -> float:
+        score = sum(
+            sum(
+                self._calculate_rouge1_by_batch(
+                    self.predictor.predict_by_index(input), target, metric
+                )
+            ).item()
+            / len(target)
+            for input, target in self.test_dataloader
+        )
+        return score / len(self.test_dataloader)
+
+    @property
+    def rouge1_precision(self) -> float:
+        return self._calculate_average_rough1("precision")
+
+    @property
+    def rouge1_recall(self) -> float:
+        return self._calculate_average_rough1("recall")
+
+    @property
+    def rouge1_f1(self) -> float:
+        return self._calculate_average_rough1("fmeasure")
+
+    @property
+    def accuracy(self) -> float:
+        accuracy = 0
+        for input, target in self.test_dataloader:
+            predicted = self.predictor.predict_by_index(input)
+            accuracy += sum(self._calculate_accuracy(predicted, target)) / len(target)
+        return accuracy / len(self.test_dataloader)

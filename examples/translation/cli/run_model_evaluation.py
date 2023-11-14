@@ -8,6 +8,7 @@ import torch
 from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.evalution.evaluator import Evaluator
+from nlp_practice.case.translation.Inference.predictor import Predictor
 from nlp_practice.model.decoder import AttentionDecoderRNN, DecoderRNN
 from nlp_practice.model.encoder import EncoderRNN
 
@@ -21,7 +22,7 @@ def fetch_args() -> argparse.Namespace:
         "--checkpoint_path",
         type=str,
         dest="checkpoint_path",
-        default="seq2seq.pt",
+        default="translation.pt",
         help="The model checkpoint path",
     )
     arg_parser.add_argument(
@@ -35,7 +36,7 @@ def fetch_args() -> argparse.Namespace:
         "--data_base_path",
         type=str,
         dest="data_base_path",
-        default="./../data",
+        default="examples/translation/data",
         help="Data base path",
     )
     arg_parser.add_argument(
@@ -90,8 +91,13 @@ def run_evaluation_job(args: argparse.Namespace) -> None:
     input_sentence, answer = random.choice(pairs)
     LOGGER.info(f"Translate {input_sentence!r} with the true sentence: {answer!r}")
 
-    evaluator = Evaluator(encoder, decoder, input_language, output_language)
-    LOGGER.info(f"Result: {' '.join(evaluator.evaluate(input_sentence))!r}")
+    predictor = Predictor(encoder, decoder, input_language, output_language)
+    LOGGER.info(f"Result: {' '.join(predictor.translate(input_sentence))!r}")
+    evaluator = Evaluator(test_dataloader, predictor)
+    LOGGER.info(f"Accuracy: {evaluator.accuracy:.4f}")
+    LOGGER.info(f"ROUGE-1 Precision: {evaluator.rouge1_precision:.4f}")
+    LOGGER.info(f"ROUGE-1 Recall: {evaluator.rouge1_recall:.4f}")
+    LOGGER.info(f"ROUGE-1 F1: {evaluator.rouge1_f1:.4f}")
 
 
 if __name__ == "__main__":

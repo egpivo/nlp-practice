@@ -39,8 +39,7 @@ class Trainer:
 
     def _train_per_epoch(self) -> float:
         total_loss = 0
-        for data in self.train_dataloader:
-            input_tensor, target_tensor = data
+        for input_tensor, target_tensor in self.train_dataloader:
             self._encoder_optimizer.zero_grad()
             self._decoder_optimizer.zero_grad()
             encoder_outputs, encoder_hidden = self.encoder(input_tensor)

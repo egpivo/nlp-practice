@@ -22,7 +22,7 @@ class Predictor:
         self.input_language = input_language
         self.output_language = output_language
 
-    def predict_by_index(self, input_indexes: list[int]) -> list[int]:
+    def predict_by_index(self, input_indexes: list[int]) -> torch.Tensor:
         with torch.no_grad():
             encoder_outputs, encoder_hidden = self.encoder(input_indexes)
             decoder_outputs, decoder_hidden, _ = self.decoder(
@@ -33,7 +33,7 @@ class Predictor:
             decoded_ids = selected_ids.squeeze()
         return decoded_ids
 
-    def predict_by_sentence(self, sentence: str) -> list[int]:
+    def predict_by_sentence(self, sentence: str) -> torch.Tensor:
         input_indexes = index_tensor_from_sentence(self.input_language, sentence)
         return self.predict_by_index(input_indexes)
 

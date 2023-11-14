@@ -139,7 +139,6 @@ def run_training_job(args: argparse.Namespace) -> list[float]:
         decoder=decoder,
         num_epochs=args.num_epochs,
         learning_rate=args.learning_rate,
-        logger=LOGGER,
     )
     loss = trainer.train()
 

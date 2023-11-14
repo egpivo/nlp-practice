@@ -1,5 +1,3 @@
-import logging
-
 import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader
@@ -17,7 +15,6 @@ class Trainer:
         decoder: Decoder,
         num_epochs: int,
         learning_rate: float,
-        logger: logging.RootLogger,
         print_log_frequency: int = 10,
     ):
         self.train_dataloader = train_dataloader
@@ -25,8 +22,6 @@ class Trainer:
         self.decoder = decoder
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
-
-        self.logger = logger
         self.print_log_frequency = print_log_frequency
 
         self._criterion = nn.NLLLoss()

@@ -1,11 +1,10 @@
 import logging
 
-import torch
 import torch.nn as nn
 from torch import optim
+from torch.utils.data import DataLoader
 from tqdm import trange
 
-from nlp_practice.case.translation.data.dataloader import TrainDataloader
 from nlp_practice.model.decoder import Decoder
 from nlp_practice.model.encoder import EncoderRNN
 
@@ -13,11 +12,10 @@ from nlp_practice.model.encoder import EncoderRNN
 class Trainer:
     def __init__(
         self,
-        train_dataloader: TrainDataloader,
+        train_dataloader: DataLoader,
         encoder: EncoderRNN,
         decoder: Decoder,
         num_epochs: int,
-        checkpoint_path: str,
         learning_rate: float,
         logger: logging.RootLogger,
         print_log_frequency: int = 10,
@@ -26,7 +24,6 @@ class Trainer:
         self.encoder = encoder
         self.decoder = decoder
         self.num_epochs = num_epochs
-        self.checkpoint_path = checkpoint_path
         self.learning_rate = learning_rate
 
         self.logger = logger
@@ -63,18 +60,3 @@ class Trainer:
 
     def train(self) -> list[float]:
         return [self._train_per_epoch() for _ in trange(self.num_epochs)]
-
-    def save(self) -> None:
-        self.logger.info(f"Save the model state dicts to {self.checkpoint_path}")
-        torch.save(
-            {
-                "encoder_state_dict": self.encoder.state_dict(),
-                "decoder_state_dict": self.decoder.state_dict(),
-                "num_epochs": self.num_epochs,
-                "learning_rate": self.learning_rate,
-                "batch_size": self.train_dataloader.batch_size,
-                "dropout_rate": self.encoder.dropout_rate,
-                "hidden_size": self.encoder.hidden_size,
-            },
-            self.checkpoint_path,
-        )

@@ -5,7 +5,8 @@ from pathlib import Path
 
 import torch
 
-from nlp_practice.case.translation.data.dataloader import TrainDataloader
+from nlp_practice.case.translation.data.dataloader import PairDataLoader
+from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.training.trainer import Trainer
 from nlp_practice.model.decoder import AttentionDecoderRNN, DecoderRNN
 from nlp_practice.model.encoder import EncoderRNN
@@ -45,6 +46,13 @@ def fetch_args() -> argparse.Namespace:
         help="The dropout rate",
     )
     arg_parser.add_argument(
+        "--training_rate",
+        type=float,
+        dest="training_rate",
+        default=0.7,
+        help="The training rate",
+    )
+    arg_parser.add_argument(
         "--learning_rate",
         type=float,
         dest="learning_rate",
@@ -69,7 +77,7 @@ def fetch_args() -> argparse.Namespace:
         "--data_base_path",
         type=str,
         dest="data_base_path",
-        default="./../data",
+        default="examples/translation/data",
         help="Data base path",
     )
     arg_parser.add_argument(
@@ -88,12 +96,21 @@ def fetch_args() -> argparse.Namespace:
 
 
 def run_training_job(args: argparse.Namespace) -> list[float]:
-    dataloader_instance = TrainDataloader(
-        args.batch_size, args.device, args.data_base_path
-    )
-    dataloader = dataloader_instance.dataloader
-    input_language = dataloader_instance.input_language
-    output_language = dataloader_instance.output_language
+    input_language, output_language, pairs = Preprocessor(
+        base_path=args.data_base_path,
+        first_language="eng",
+        second_language="fra",
+        does_reverse=True,
+    ).process()
+
+    train_dataloader = PairDataLoader(
+        pairs=pairs,
+        input_language=input_language,
+        output_language=output_language,
+        training_rate=args.training_rate,
+        batch_size=args.batch_size,
+        device=args.device,
+    ).train_dataloader
     encoder = EncoderRNN(
         input_size=input_language.num_words,
         hidden_size=args.hidden_size,
@@ -117,16 +134,29 @@ def run_training_job(args: argparse.Namespace) -> list[float]:
         decoder.load_state_dict(checkpoint["decoder_state_dict"])
 
     trainer = Trainer(
-        train_dataloader=dataloader,
+        train_dataloader=train_dataloader,
         encoder=encoder,
         decoder=decoder,
         num_epochs=args.num_epochs,
         learning_rate=args.learning_rate,
-        checkpoint_path=args.checkpoint_path,
         logger=LOGGER,
     )
     loss = trainer.train()
-    trainer.save()
+
+    LOGGER.info(f"Save the model state dicts to {args.checkpoint_path}")
+    torch.save(
+        {
+            "encoder_state_dict": encoder.state_dict(),
+            "decoder_state_dict": decoder.state_dict(),
+            "num_epochs": args.num_epochs,
+            "learning_rate": args.learning_rate,
+            "batch_size": args.batch_size,
+            "dropout_rate": args.dropout_rate,
+            "hidden_size": args.hidden_size,
+            "training_rate": args.training_rate,
+        },
+        args.checkpoint_path,
+    )
     return loss
 
 

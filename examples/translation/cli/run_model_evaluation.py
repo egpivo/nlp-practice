@@ -5,7 +5,8 @@ from argparse import ArgumentParser
 
 import torch
 
-from nlp_practice.case.translation.data.dataloader import TrainDataloader
+from nlp_practice.case.translation.data.dataloader import PairDataLoader
+from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.evalution.evaluator import Evaluator
 from nlp_practice.model.decoder import AttentionDecoderRNN, DecoderRNN
 from nlp_practice.model.encoder import EncoderRNN
@@ -47,13 +48,23 @@ def fetch_args() -> argparse.Namespace:
 
 
 def run_evaluation_job(args: argparse.Namespace) -> None:
+    input_language, output_language, pairs = Preprocessor(
+        base_path=args.data_base_path,
+        first_language="eng",
+        second_language="fra",
+        does_reverse=True,
+    ).process()
+
     checkpoint = torch.load(args.checkpoint_path)
 
-    dataloader_instance = TrainDataloader(
-        checkpoint["batch_size"], args.device, args.data_base_path
-    )
-    input_language = dataloader_instance.input_language
-    output_language = dataloader_instance.output_language
+    test_dataloader = PairDataLoader(
+        pairs=pairs,
+        input_language=input_language,
+        output_language=output_language,
+        training_rate=checkpoint["training_rate"],
+        batch_size=checkpoint["batch_size"],
+        device=args.device,
+    ).test_dataloader
 
     encoder = EncoderRNN(
         input_size=input_language.num_words,
@@ -76,7 +87,7 @@ def run_evaluation_job(args: argparse.Namespace) -> None:
     encoder.eval()
     decoder.eval()
 
-    input_sentence, answer = random.choice(dataloader_instance.pairs)
+    input_sentence, answer = random.choice(pairs)
     LOGGER.info(f"Translate {input_sentence!r} with the true sentence: {answer!r}")
 
     evaluator = Evaluator(encoder, decoder, input_language, output_language)

@@ -15,9 +15,9 @@ pip install git+https://github.com/egpivo/nlp-practice.git
 
 ### Example
 
-| Case        | Notebook                                                      | CLI                                 |
-|-------------|---------------------------------------------------------------|-------------------------------------|
-| translation | [evaluation](examples/translation/notebooks/evaluation.ipynb) | [scripts](examples/translation/cli) |
+| Case | Module                                     | Notebook | CLI                                  | Remark                                                                                    |
+|------|--------------------------------------------|--------------|--------------------------------------|-------------------------------------------------------------------------------------------|
+| translation | [modules](nlp_practice/case/translation)   |[evaluation](examples/translation/notebooks/evaluation.ipynb)| [scripts](examples/translation/cli)  | [reference](https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html) |
 
 ## License
 

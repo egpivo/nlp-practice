@@ -58,15 +58,6 @@ def run_evaluation_job(args: argparse.Namespace) -> None:
 
     checkpoint = torch.load(args.checkpoint_path)
 
-    test_dataloader = PairDataLoader(
-        pairs=pairs,
-        input_language=input_language,
-        output_language=output_language,
-        training_rate=checkpoint["training_rate"],
-        batch_size=checkpoint["batch_size"],
-        device=args.device,
-    ).test_dataloader
-
     encoder = EncoderRNN(
         input_size=input_language.num_words,
         hidden_size=checkpoint["hidden_size"],
@@ -93,6 +84,15 @@ def run_evaluation_job(args: argparse.Namespace) -> None:
 
     predictor = Predictor(encoder, decoder, input_language, output_language)
     LOGGER.info(f"Result: {' '.join(predictor.translate(input_sentence))!r}")
+
+    test_dataloader = PairDataLoader(
+        pairs=pairs,
+        input_language=input_language,
+        output_language=output_language,
+        training_rate=checkpoint["training_rate"],
+        batch_size=checkpoint["batch_size"],
+        device=args.device,
+    ).test_dataloader
     evaluator = Evaluator(test_dataloader, predictor)
     LOGGER.info(f"Accuracy: {evaluator.accuracy:.4f}")
     LOGGER.info(f"ROUGE-1 Precision: {evaluator.rouge1_precision:.4f}")

@@ -51,6 +51,5 @@ def test_trainer(sample_data):
     trainer._decoder_optimizer.step = lambda: None
     losses = trainer.train()
 
-    # Assuming your training loop is correct, you can make assertions on the losses
     assert len(losses) == num_epochs
     assert all(isinstance(loss, float) for loss in losses)

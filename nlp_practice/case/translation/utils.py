@@ -10,7 +10,7 @@ def remove_accents(string: str) -> str:
     """
     Examples
     --------
-    >>> convert_unicode_to_ascii(u'A\u2019A')
+    >>> remove_accents(u'A\u2019A')
     'A’A'
 
     References
@@ -66,5 +66,7 @@ def is_valid_pair(pair: list[str], prefixes: tuple[str] = ENGLISH_PREFIXES) -> b
     )
 
 
-def filter_pairs(pairs: list[list[str]]) -> list[list[str]]:
-    return [pair for pair in pairs if is_valid_pair(pair)]
+def filter_pairs(
+    pairs: list[list[str]], prefixes: tuple[str] = ENGLISH_PREFIXES
+) -> list[list[str]]:
+    return [pair for pair in pairs if is_valid_pair(pair, prefixes)]

@@ -1,3 +1,4 @@
+from nlp_practice.case.translation import ENGLISH_PREFIXES
 from nlp_practice.case.translation.data.data_handler import DataReader, LanguageData
 from nlp_practice.case.translation.utils import filter_pairs
 
@@ -32,7 +33,7 @@ class Preprocessor:
             second_language=self.second_language,
             does_reverse=self.does_reverse,
         ).read()
-        valid_pairs = filter_pairs(pairs)
+        valid_pairs = filter_pairs(pairs, ENGLISH_PREFIXES)
         for pair in valid_pairs:
             input_language.add_sentence(pair[0])
             output_language.add_sentence(pair[1])

@@ -2,7 +2,40 @@ import os
 
 import pytest
 
-from nlp_practice.case.translation.utils import read_file
+from nlp_practice.case.translation.utils import (
+    filter_pairs,
+    is_valid_pair,
+    normalize_string,
+    read_file,
+    remove_accents,
+)
+
+ENGLISH_PREFIXES = ("I", "You", "He", "She", "It", "We", "They")
+MAX_LENGTH = 10
+
+
+@pytest.mark.parametrize(
+    "input_str, expected_output",
+    [
+        ("A\u2019A", "A’A"),
+        # Add more test cases as needed
+    ],
+)
+def test_remove_accents(input_str, expected_output):
+    result = remove_accents(input_str)
+    assert result == expected_output
+
+
+@pytest.mark.parametrize(
+    "input_str, expected_output",
+    [
+        ("I\u2019m    happy.Really,,, ~..!", "i m happy really !"),
+        # Add more test cases as needed
+    ],
+)
+def test_normalize_string(input_str, expected_output):
+    result = normalize_string(input_str)
+    assert result == expected_output
 
 
 @pytest.fixture
@@ -35,3 +68,40 @@ def test_read_file_file_not_found(test_base_path, capsys):
         f"The file `./nonexistent-file.txt` was not found in the current directory"
     )
     assert expected_error_message in str(e.value)
+
+
+@pytest.mark.parametrize(
+    "pair, prefixes, expected",
+    [
+        (["Hello", "Bonjour"], ENGLISH_PREFIXES, False),
+        (
+            ["This is a long sentence", "C'est une longue phrase"],
+            ENGLISH_PREFIXES,
+            False,
+        ),
+        (["Invalid Pair", "Not French"], ENGLISH_PREFIXES, False),
+    ],
+)
+def test_is_valid_pair(pair, prefixes, expected):
+    result = is_valid_pair(pair, prefixes)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "pairs, prefixes, expected",
+    [
+        (
+            [["Hello", "Bonjour"], ["Short", "Court"], ["Too long", "Trop long"]],
+            ENGLISH_PREFIXES,
+            [],
+        ),
+        (
+            [["Invalid Pair", "Not French"], ["Another invalid", "Encore invalide"]],
+            ENGLISH_PREFIXES,
+            [],
+        ),
+    ],
+)
+def test_filter_pairs(pairs, prefixes, expected):
+    result = filter_pairs(pairs, prefixes)
+    assert result == expected

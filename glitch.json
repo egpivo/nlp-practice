@@ -1,0 +1,5 @@
+{
+  "install": "poetry install",
+  "start": "poetry run python nlp_practice/service/main.py",
+  "watch": ["nlp_practice/service/main.py"]
+}

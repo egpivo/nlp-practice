@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from nlp_practice.model.utils import PositionalEncoder, TokenEmbedding
+from nlp_practice.model.utils import PositionalEncoder, TokenEmbedder
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def test_forward(positional_encoder):
 def token_embedding():
     input_size = 100
     embedding_size = 256
-    return TokenEmbedding(input_size, embedding_size)
+    return TokenEmbedder(input_size, embedding_size)
 
 
 def test_forward(token_embedding):

@@ -45,7 +45,7 @@ class PositionalEncoder(nn.Module):
             return token_embedding + self.pos_embedding[:, : token_embedding.size(0)]
 
 
-class TokenEmbedding(nn.Module):
+class TokenEmbedder(nn.Module):
     """
     References
     ----------

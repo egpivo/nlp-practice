@@ -19,12 +19,14 @@ def test_pos_embedding_shape(positional_encoder):
 
 
 def test_different_max_length():
+    batch_size = 2
+    seq_length = 7
     embedding_size = 512
     max_length = 50
     wave_factor = 10000
     positional_encoder = PositionalEncoder(embedding_size, max_length, wave_factor)
 
-    token_embedding = torch.rand((5, embedding_size))
+    token_embedding = torch.rand(batch_size, seq_length, embedding_size)
     output = positional_encoder(token_embedding).squeeze(0)
 
     assert output.shape == token_embedding.shape
@@ -32,12 +34,13 @@ def test_different_max_length():
 
 
 def test_different_embedding_size():
+    seq_length = 7
     embedding_size = 256
     max_length = 100
     wave_factor = 10000
     positional_encoder = PositionalEncoder(embedding_size, max_length, wave_factor)
 
-    token_embedding = torch.rand((10, embedding_size))
+    token_embedding = torch.rand(seq_length, embedding_size)
     output = positional_encoder(token_embedding).squeeze(0)
 
     assert output.shape == token_embedding.shape
@@ -50,7 +53,6 @@ def test_pos_embedding_requires_grad():
     wave_factor = 10000
     positional_encoder = PositionalEncoder(embedding_size, max_length, wave_factor)
 
-    # Check that the positional encoding tensor is not trainable
     assert not positional_encoder.pos_embedding.requires_grad
 
 
@@ -82,7 +84,6 @@ def token_embedding():
 
 def test_forward(token_embedding):
     tokens = torch.tensor([1, 2, 3, 4, 5])
-
     output = token_embedding(tokens)
 
     assert output.shape == torch.Size([len(tokens), token_embedding.embedding_size])

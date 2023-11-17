@@ -46,9 +46,8 @@ class PositionalEncoder(nn.Module):
     def forward(self, token_embedding: torch.Tensor) -> torch.Tensor:
         """Note: shape of token_embedding = (batch_size, seq_length, embedding_size)"""
         with torch.no_grad():
-            pos_embedding = self.pos_embedding[: token_embedding.size(1), :].unsqueeze(
-                0
-            )
+            seq_length = token_embedding.size(1)
+            pos_embedding = self.pos_embedding[:seq_length, :].unsqueeze(0)
             return token_embedding + pos_embedding
 
 

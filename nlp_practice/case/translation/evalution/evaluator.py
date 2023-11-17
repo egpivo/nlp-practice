@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchmetrics.text.rouge import ROUGEScore
 
-from nlp_practice.case.translation.Inference.predictor import Predictor
+from nlp_practice.case.translation.inference.predictor import Predictor
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

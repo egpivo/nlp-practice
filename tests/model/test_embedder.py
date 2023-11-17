@@ -34,13 +34,14 @@ def test_different_max_length():
 
 
 def test_different_embedding_size():
+    batch_size = 2
     seq_length = 7
     embedding_size = 256
     max_length = 100
     wave_factor = 10000
     positional_encoder = PositionalEncoder(embedding_size, max_length, wave_factor)
 
-    token_embedding = torch.rand(seq_length, embedding_size)
+    token_embedding = torch.rand(batch_size, seq_length, embedding_size)
     output = positional_encoder(token_embedding).squeeze(0)
 
     assert output.shape == token_embedding.shape

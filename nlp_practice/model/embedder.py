@@ -29,23 +29,27 @@ class PositionalEncoder(nn.Module):
         self.max_length = max_length
         self.wave_factor = wave_factor
 
-        pos_embedding = torch.zeros(max_length, embedding_size)
-        position = torch.arange(0, max_length).unsqueeze(1)
-
-        wavelength = torch.exp(
-            -(torch.arange(0, embedding_size, 2) / embedding_size)
-            * math.log(wave_factor)
-        )
-
-        pos_embedding[:, 0::2] = torch.sin(position * wavelength)
-        pos_embedding[:, 1::2] = torch.cos(position * wavelength)
-        pos_embedding = pos_embedding.unsqueeze(0)
-
+        pos_embedding = self._generate_positional_embedding()
         self.register_buffer("pos_embedding", pos_embedding)
 
+    def _generate_positional_embedding(self) -> torch.Tensor:
+        position = torch.arange(0, self.max_length).reshape(self.max_length, 1)
+        wavelength = torch.exp(
+            -(torch.arange(0, self.embedding_size, 2) / self.embedding_size)
+            * math.log(self.wave_factor)
+        )
+        pos_embedding = torch.zeros(self.max_length, self.embedding_size)
+        pos_embedding[:, 0::2] = torch.sin(position * wavelength)
+        pos_embedding[:, 1::2] = torch.cos(position * wavelength)
+        return pos_embedding
+
     def forward(self, token_embedding: torch.Tensor) -> torch.Tensor:
+        """Note: shape of token_embedding = (batch_size, seq_length, embedding_size)"""
         with torch.no_grad():
-            return token_embedding + self.pos_embedding[:, : token_embedding.size(1)]
+            pos_embedding = self.pos_embedding[: token_embedding.size(1), :].unsqueeze(
+                0
+            )
+            return token_embedding + pos_embedding
 
 
 class TokenEmbedder(nn.Module):

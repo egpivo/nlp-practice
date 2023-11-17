@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from nlp_practice.model.utils import PositionalEncoder, TokenEmbedder
+from nlp_practice.model.embedder import PositionalEncoder, TokenEmbedder
 
 
 @pytest.fixture
@@ -14,16 +14,8 @@ def positional_encoder():
 
 def test_pos_embedding_shape(positional_encoder):
     assert positional_encoder.pos_embedding.shape == torch.Size(
-        [1, positional_encoder.max_length, positional_encoder.embedding_size]
+        [positional_encoder.max_length, positional_encoder.embedding_size]
     )
-
-
-def test_forward(positional_encoder):
-    token_embedding = torch.rand((10, positional_encoder.embedding_size))
-    output = positional_encoder(token_embedding).squeeze(0)
-
-    assert output.shape == token_embedding.shape
-    assert not torch.allclose(output, token_embedding)
 
 
 def test_different_max_length():
@@ -83,9 +75,9 @@ def test_pos_embedding_values(positional_encoder):
 
 @pytest.fixture
 def token_embedding():
-    input_size = 100
+    vocabulary_size = 100
     embedding_size = 256
-    return TokenEmbedder(input_size, embedding_size)
+    return TokenEmbedder(vocabulary_size, embedding_size)
 
 
 def test_forward(token_embedding):

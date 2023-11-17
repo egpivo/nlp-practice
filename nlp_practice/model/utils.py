@@ -55,6 +55,7 @@ class TokenEmbedding(nn.Module):
     def __init__(self, input_size: int, embedding_size: int) -> None:
         super().__init__()
         self.embedding = nn.Embedding(input_size, embedding_size)
+        self.embedding_size = embedding_size
         self.weight = math.sqrt(embedding_size)
 
     def forward(self, tokens: torch.Tensor) -> torch.Tensor:

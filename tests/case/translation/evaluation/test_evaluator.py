@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.evalution.evaluator import Evaluator
-from nlp_practice.case.translation.Inference.predictor import Predictor
+from nlp_practice.case.translation.inference.predictor import Predictor
 from nlp_practice.case.translation.training.trainer import Trainer
 from nlp_practice.model.decoder import DecoderRNN
 from nlp_practice.model.encoder import EncoderRNN

@@ -45,7 +45,7 @@ class PositionalEncoder(nn.Module):
 
     def forward(self, token_embedding: torch.Tensor) -> torch.Tensor:
         with torch.no_grad():
-            return token_embedding + self.pos_embedding[:, : token_embedding.size(0)]
+            return token_embedding + self.pos_embedding[:, : token_embedding.size(1)]
 
 
 class TokenEmbedder(nn.Module):
@@ -55,9 +55,9 @@ class TokenEmbedder(nn.Module):
     - https://pytorch.org/tutorials/beginner/translation_transformer.html
     """
 
-    def __init__(self, input_size: int, embedding_size: int) -> None:
+    def __init__(self, vocabulary_size: int, embedding_size: int) -> None:
         super().__init__()
-        self.embedding = nn.Embedding(input_size, embedding_size)
+        self.embedding = nn.Embedding(vocabulary_size, embedding_size)
         self.embedding_size = embedding_size
         self.weight = math.sqrt(embedding_size)
 

@@ -25,6 +25,9 @@ class PositionalEncoder(nn.Module):
         wave_factor: int = 10000,
     ) -> None:
         super().__init__()
+        self.embedding_size = embedding_size
+        self.max_length = max_length
+        self.wave_factor = wave_factor
 
         pos_embedding = torch.zeros(max_length, embedding_size)
         position = torch.arange(0, max_length).unsqueeze(1)

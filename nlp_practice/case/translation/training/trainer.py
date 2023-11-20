@@ -42,7 +42,8 @@ class Trainer:
         num_batches = len(self.train_dataloader)
 
         if num_batches == 0:
-            return
+            raise ValueError("Empty dataloader. Cannot train without any batches.")
+
         for input_tensor, target_tensor in self.train_dataloader:
             self._encoder_optimizer.zero_grad()
             self._decoder_optimizer.zero_grad()
@@ -90,7 +91,8 @@ class TransformerTrainer:
         num_batches = len(self.train_dataloader)
 
         if num_batches == 0:
-            return
+            raise ValueError("Empty dataloader. Cannot train without any batches.")
+
         for input_tensor, target_tensor in self.train_dataloader:
             self._optimizer.zero_grad()
             target_input, target_output = target_tensor[:, :-1], target_tensor[:, 1:]

@@ -1,6 +1,7 @@
 # Ref: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 SOS_TOKEN = 0
 EOS_TOKEN = 1
+PAD_TOKEN = 2
 MAX_LENGTH = 10
 
 ENGLISH_PREFIXES = (

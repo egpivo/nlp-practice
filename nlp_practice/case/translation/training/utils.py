@@ -18,15 +18,14 @@ def create_masks(
             == 1
         ).transpose(0, 1)
     ).float()
-    target_mask = init_target_mask.masked_fill(
-        init_target_mask == 0, float("-inf")
-    ).masked_fill(init_target_mask == 1, float(0))
+    target_mask = torch.ones_like(init_target_mask) * float("-inf")
+    target_mask[target_mask == 1] = 0
 
-    return input_mask.to_device(device), target_mask.to_device(device)
+    return input_mask.to(device), target_mask.to(device)
 
 
 def create_padding_masks(
     input: torch.Tensor, target: torch.Tensor, device: str = "cpu"
 ) -> tuple[torch.Tensor]:
     pad_sequence = lambda sequence: (sequence == PAD_TOKEN).transpose(0, 1)
-    return pad_sequence(input).to_device(device), pad_sequence(target).to_device(device)
+    return pad_sequence(input).to(device), pad_sequence(target).to(device)

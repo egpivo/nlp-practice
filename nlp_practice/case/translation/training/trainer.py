@@ -39,6 +39,10 @@ class Trainer:
 
     def _train_per_epoch(self) -> float:
         total_loss = 0
+        num_batches = len(self.train_dataloader)
+
+        if num_batches == 0:
+            return
         for input_tensor, target_tensor in self.train_dataloader:
             self._encoder_optimizer.zero_grad()
             self._decoder_optimizer.zero_grad()
@@ -55,7 +59,7 @@ class Trainer:
             self._decoder_optimizer.step()
 
             total_loss += loss.item()
-        return total_loss / len(self.train_dataloader)
+        return total_loss / num_batches
 
     def train(self) -> list[float]:
         return [self._train_per_epoch() for _ in trange(self.num_epochs)]
@@ -83,9 +87,13 @@ class TransformerTrainer:
 
     def _train_per_epoch(self) -> float:
         total_loss = 0
+        num_batches = len(self.train_dataloader)
+
+        if num_batches == 0:
+            return
         for input_tensor, target_tensor in self.train_dataloader:
             self._optimizer.zero_grad()
-            target_input, target_output = target_tensor[:-1, :], target_tensor[1:, :]
+            target_input, target_output = target_tensor[:, :-1], target_tensor[:, 1:]
             input_mask, output_mask = create_masks(input_tensor, target_input)
             input_padding_mask, output_padding_mask = create_padding_masks(
                 input_tensor, target_input
@@ -108,7 +116,7 @@ class TransformerTrainer:
             self._optimizer.step()
 
             total_loss += loss.item()
-        return total_loss / len(self.train_dataloader)
+        return total_loss / num_batches
 
     def train(self) -> list[float]:
         return [self._train_per_epoch() for _ in trange(self.num_epochs)]

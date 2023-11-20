@@ -10,8 +10,18 @@ from nlp_practice.case.translation.training.utils import (
 
 @pytest.fixture
 def input_target_tensors():
-    input_tensor = torch.randint(0, 10, (8, 64))
-    target_tensor = torch.randint(0, 10, (10, 64))
+    batch_size = 64
+    input_size = 8
+    output_size = 10
+    input_tensor = torch.randint(
+        0,
+        10,
+        (
+            batch_size,
+            input_size,
+        ),
+    )
+    target_tensor = torch.randint(0, 10, (batch_size, output_size))
     return input_tensor, target_tensor
 
 
@@ -40,8 +50,6 @@ def test_create_padding_masks(input_target_tensors):
         input_tensor, target_tensor
     )
     assert input_padding_mask.shape == (64, 8)
-    assert torch.all(input_padding_mask == (input_tensor == PAD_TOKEN).transpose(0, 1))
+    assert torch.all(input_padding_mask == (input_tensor == PAD_TOKEN))
     assert target_padding_mask.shape == (64, 10)
-    assert torch.all(
-        target_padding_mask == (target_tensor == PAD_TOKEN).transpose(0, 1)
-    )
+    assert torch.all(target_padding_mask == (target_tensor == PAD_TOKEN))

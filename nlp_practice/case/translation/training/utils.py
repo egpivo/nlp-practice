@@ -6,7 +6,7 @@ from nlp_practice.case.translation import PAD_TOKEN
 def create_masks(
     input: torch.Tensor, target: torch.Tensor, device: str = "cpu"
 ) -> tuple[torch.Tensor]:
-    sequence_lengths = {"input": input.shape[0], "target": target.shape[0]}
+    sequence_lengths = {"input": input.shape[1], "target": target.shape[1]}
     input_mask = torch.zeros(sequence_lengths["input"], sequence_lengths["input"]).type(
         torch.bool
     )
@@ -27,5 +27,5 @@ def create_masks(
 def create_padding_masks(
     input: torch.Tensor, target: torch.Tensor, device: str = "cpu"
 ) -> tuple[torch.Tensor]:
-    pad_sequence = lambda sequence: (sequence == PAD_TOKEN).transpose(0, 1)
+    pad_sequence = lambda sequence: (sequence == PAD_TOKEN)
     return pad_sequence(input).to(device), pad_sequence(target).to(device)

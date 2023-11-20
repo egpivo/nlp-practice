@@ -52,8 +52,6 @@ class Seq2SeqTransformer(nn.Module):
         output_padding_mask: torch.Tensor = None,
         memory_key_padding_mask: torch.Tensor = None,
     ) -> torch.Tensor:
-        print(input.shape)
-        print(self.input_embedding(input).shape)
         input_embeddings = self.positional_encoder(self.input_embedding(input))
         output_embeddings = self.positional_encoder(self.output_embedding(output))
         output = self.transformer(

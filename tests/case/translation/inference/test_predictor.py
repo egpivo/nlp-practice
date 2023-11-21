@@ -4,7 +4,7 @@ import torch
 from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.inference.predictor import Predictor
-from nlp_practice.case.translation.training.trainer import Trainer
+from nlp_practice.case.translation.training.trainer import Seq2SeqTrainer
 from nlp_practice.model.decoder import DecoderRNN
 from nlp_practice.model.encoder import EncoderRNN
 
@@ -41,7 +41,7 @@ def test_predictor(sample_data):
         device="cpu",
     )
     num_epochs = 1
-    trainer = Trainer(
+    trainer = Seq2SeqTrainer(
         train_dataloader=sample_data[2].train_dataloader,
         encoder=encoder,
         decoder=decoder,

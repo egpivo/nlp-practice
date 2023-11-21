@@ -7,9 +7,8 @@ import torch
 
 from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
-from nlp_practice.case.translation.training.trainer import Trainer
-from nlp_practice.model.decoder import AttentionDecoderRNN, DecoderRNN
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.case.translation.training.trainer import TransformerTrainer
+from nlp_practice.model.transformer import Seq2SeqTransformer
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
@@ -18,11 +17,11 @@ LOGGER = logging.getLogger()
 def fetch_args() -> argparse.Namespace:
     arg_parser = ArgumentParser()
     arg_parser.add_argument(
-        "--hidden_size",
+        "--embedding_size",
         type=int,
-        dest="hidden_size",
+        dest="embedding_size",
         default=128,
-        help="The size of the hidden layer",
+        help="The embedding size",
     )
     arg_parser.add_argument(
         "--batch_size",
@@ -37,6 +36,34 @@ def fetch_args() -> argparse.Namespace:
         dest="num_epochs",
         default=100,
         help="The number of epochs",
+    )
+    arg_parser.add_argument(
+        "--num_heads",
+        type=int,
+        dest="num_heads",
+        default=8,
+        help="The number of multi-heads",
+    )
+    arg_parser.add_argument(
+        "--dim_feedforward",
+        type=int,
+        dest="dim_feedforward",
+        default=128,
+        help="The dimensionality of the feedforward layer",
+    )
+    arg_parser.add_argument(
+        "--num_decoder_layers",
+        type=int,
+        dest="num_decoder_layers",
+        default=1,
+        help="The number of decoder layers",
+    )
+    arg_parser.add_argument(
+        "--num_encoder_layers",
+        type=int,
+        dest="num_encoder_layers",
+        default=1,
+        help="The number of encoder layers",
     )
     arg_parser.add_argument(
         "--dropout_rate",
@@ -63,7 +90,7 @@ def fetch_args() -> argparse.Namespace:
         "--checkpoint_path",
         type=str,
         dest="checkpoint_path",
-        default="translation.pt",
+        default="transformer.pt",
         help="The model checkpoint path",
     )
     arg_parser.add_argument(
@@ -111,32 +138,25 @@ def run_training_job(args: argparse.Namespace) -> list[float]:
         batch_size=args.batch_size,
         device=args.device,
     ).train_dataloader
-    encoder = EncoderRNN(
-        input_size=input_language.num_words,
-        hidden_size=args.hidden_size,
-        dropout_rate=args.dropout_rate,
-    ).to(args.device)
 
-    decoder_class = (
-        AttentionDecoderRNN if args.does_use_attention_decoder else DecoderRNN
-    )
-    decoder = decoder_class(
-        hidden_size=args.hidden_size,
+    transformer = Seq2SeqTransformer(
+        embedding_size=args.embedding_size,
+        num_heads=args.num_heads,
+        dim_feedforward=args.dim_feedforward,
+        num_decoder_layers=args.num_decoder_layers,
+        num_encoder_layers=args.num_encoder_layers,
+        input_size=input_language.num_words,
         output_size=output_language.num_words,
-        dropout_rate=args.dropout_rate,
-        device=args.device,
     ).to(args.device)
 
     if Path(args.checkpoint_path).is_file() and args.does_proceed_training:
         LOGGER.info(f"Loading the parameters in checkpoint: {args.checkpoint_path}")
         checkpoint = torch.load(args.checkpoint_path)
-        encoder.load_state_dict(checkpoint["encoder_state_dict"])
-        decoder.load_state_dict(checkpoint["decoder_state_dict"])
+        transformer.load_state_dict(checkpoint["state_dict"])
 
-    trainer = Trainer(
+    trainer = TransformerTrainer(
         train_dataloader=train_dataloader,
-        encoder=encoder,
-        decoder=decoder,
+        transformer=transformer,
         num_epochs=args.num_epochs,
         learning_rate=args.learning_rate,
     )
@@ -145,13 +165,16 @@ def run_training_job(args: argparse.Namespace) -> list[float]:
     LOGGER.info(f"Save the model state dicts to {args.checkpoint_path}")
     torch.save(
         {
-            "encoder_state_dict": encoder.state_dict(),
-            "decoder_state_dict": decoder.state_dict(),
+            "encoder_state_dict": transformer.state_dict(),
             "num_epochs": args.num_epochs,
             "learning_rate": args.learning_rate,
             "batch_size": args.batch_size,
+            "embedding_size": args.embedding_size,
+            "num_heads": args.num_heads,
+            "dim_feedforward": args.dim_feedforward,
+            "num_decoder_layers": args.num_decoder_layers,
+            "num_encoder_layers": args.num_encoder_layers,
             "dropout_rate": args.dropout_rate,
-            "hidden_size": args.hidden_size,
             "training_rate": args.training_rate,
         },
         args.checkpoint_path,

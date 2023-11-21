@@ -4,7 +4,10 @@ from torch.utils.data import DataLoader
 
 from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
-from nlp_practice.case.translation.training.trainer import Trainer, TransformerTrainer
+from nlp_practice.case.translation.training.trainer import (
+    Seq2SeqTrainer,
+    TransformerTrainer,
+)
 from nlp_practice.model.decoder import DecoderRNN
 from nlp_practice.model.encoder import EncoderRNN
 from nlp_practice.model.transformer import Seq2SeqTransformer
@@ -47,7 +50,7 @@ def test_trainer(sample_data):
         device="cpu",
     )
     num_epochs = 1
-    trainer = Trainer(
+    trainer = Seq2SeqTrainer(
         train_dataloader=sample_data[2],
         encoder=encoder,
         decoder=decoder,
@@ -74,7 +77,7 @@ def test_empty_dataloader_trainer(sample_data, empty_dataloader):
         device="cpu",
     )
     num_epochs = 1
-    trainer = Trainer(
+    trainer = Seq2SeqTrainer(
         train_dataloader=empty_dataloader,
         encoder=encoder,
         decoder=decoder,

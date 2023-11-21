@@ -12,7 +12,7 @@ from nlp_practice.model.encoder import EncoderRNN
 from nlp_practice.model.transformer import Seq2SeqTransformer
 
 
-class Trainer:
+class Seq2SeqTrainer:
     def __init__(
         self,
         train_dataloader: DataLoader,
@@ -111,8 +111,8 @@ class TransformerTrainer:
                 memory_key_padding_mask=None,
             )
             loss = self._criterion(
-                logits.view(-1, logits.size(-1)),
-                target_output.view(-1),
+                logits.reshape(-1, logits.size(-1)),
+                target_output.reshape(-1),
             )
             loss.backward()
             self._optimizer.step()

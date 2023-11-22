@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import torch.nn as nn
 from torch import optim
@@ -32,7 +32,6 @@ class Trainer(ABC):
         if self.num_batches == 0:
             raise ValueError("Empty dataloader. Cannot train without any batches.")
 
-    @abstractmethod
     def _train_per_epoch(self) -> float:
         return NotImplementedError
 

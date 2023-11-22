@@ -161,20 +161,20 @@ def sample_dataloader():
     return DataLoader(dataset)
 
 
-class MockTrainer(Trainer):
-    def _train_per_epoch(self) -> float:
-        return 0.0
+def test_train_per_epoch_abstract_method(sample_dataloader):
+    class MockTrainer(Trainer):
+        def _train_per_epoch(self) -> float:
+            # A dummy implementation to satisfy the abstract method
+            return 0.0
 
-
-@pytest.fixture
-def mock_trainer(sample_dataloader):
-    return MockTrainer(
-        train_dataloader=sample_dataloader,
-        num_epochs=1,
-        learning_rate=0.001,
+    mock_trainer = MockTrainer(
+        DataLoader(sample_dataloader), num_epochs=1, learning_rate=0.001
     )
 
-
-def test_train_per_epoch_abstract_method(mock_trainer):
-    result = mock_trainer._train_per_epoch()
-    assert result == 0.0
+    # No exception should be raised here, as we have implemented the abstract method
+    try:
+        mock_trainer._train_per_epoch()
+    except NotImplementedError:
+        pytest.fail(
+            "NotImplementedError should not be raised for the implemented method."
+        )

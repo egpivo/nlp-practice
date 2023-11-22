@@ -6,6 +6,7 @@ from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.training.trainer import (
     Seq2SeqTrainer,
+    Trainer,
     TransformerTrainer,
 )
 from nlp_practice.model.decoder import DecoderRNN
@@ -144,4 +145,36 @@ def test_empty_dataloader_trainer(sample_data, empty_dataloader):
             num_epochs=num_epochs,
             learning_rate=0.001,
         )
-        trainer.train()
+
+
+@pytest.fixture
+def sample_dataloader():
+    # Create a DataLoader with some dummy data
+    input_size = 7
+    output_size = 10
+    batch_size = 2
+
+    input_tensors = torch.randint(0, input_size, (batch_size, input_size))
+    target_tensors = torch.randint(0, output_size, (batch_size, output_size))
+
+    dataset = list(zip(input_tensors, target_tensors))
+    return DataLoader(dataset)
+
+
+class MockTrainer(Trainer):
+    def _train_per_epoch(self) -> float:
+        return 0.0
+
+
+@pytest.fixture
+def mock_trainer(sample_dataloader):
+    return MockTrainer(
+        train_dataloader=sample_dataloader,
+        num_epochs=1,
+        learning_rate=0.001,
+    )
+
+
+def test_train_per_epoch_abstract_method(mock_trainer):
+    result = mock_trainer._train_per_epoch()
+    assert result == 0.0

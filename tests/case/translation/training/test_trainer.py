@@ -66,30 +66,6 @@ def test_trainer(sample_data):
     assert all(isinstance(loss, float) for loss in losses)
 
 
-def test_empty_dataloader_trainer(sample_data, empty_dataloader):
-    encoder = EncoderRNN(
-        input_size=sample_data[0].num_words, hidden_size=10, dropout_rate=0.1
-    )
-    decoder = DecoderRNN(
-        output_size=sample_data[1].num_words,
-        hidden_size=10,
-        dropout_rate=0.1,
-        device="cpu",
-    )
-    num_epochs = 1
-    trainer = Seq2SeqTrainer(
-        train_dataloader=empty_dataloader,
-        encoder=encoder,
-        decoder=decoder,
-        num_epochs=num_epochs,
-        learning_rate=0.001,
-    )
-    with pytest.raises(
-        ValueError, match="Empty dataloader. Cannot train without any batches."
-    ):
-        trainer.train()
-
-
 @pytest.fixture
 def seq2seq_transformer():
     # Use the same settings as in the Seq2SeqTransformer tests
@@ -147,20 +123,25 @@ def test_transformer_trainer_forward(seq2seq_transformer, dataloader):
     assert len(losses) == num_epochs
 
 
-def test_empty_dataloader_transformer_trainer(empty_dataloader, seq2seq_transformer):
-    num_epochs = 2
-    learning_rate = 0.001
-    print_log_frequency = 5
-
-    trainer_empty = TransformerTrainer(
-        train_dataloader=empty_dataloader,
-        transformer=seq2seq_transformer,
-        num_epochs=num_epochs,
-        learning_rate=learning_rate,
-        print_log_frequency=print_log_frequency,
+def test_empty_dataloader_trainer(sample_data, empty_dataloader):
+    encoder = EncoderRNN(
+        input_size=sample_data[0].num_words, hidden_size=10, dropout_rate=0.1
     )
-
+    decoder = DecoderRNN(
+        output_size=sample_data[1].num_words,
+        hidden_size=10,
+        dropout_rate=0.1,
+        device="cpu",
+    )
+    num_epochs = 1
     with pytest.raises(
         ValueError, match="Empty dataloader. Cannot train without any batches."
     ):
-        trainer_empty.train()
+        trainer = Seq2SeqTrainer(
+            train_dataloader=empty_dataloader,
+            encoder=encoder,
+            decoder=decoder,
+            num_epochs=num_epochs,
+            learning_rate=0.001,
+        )
+        trainer.train()

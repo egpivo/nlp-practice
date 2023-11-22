@@ -33,7 +33,9 @@ class Trainer(ABC):
             raise ValueError("Empty dataloader. Cannot train without any batches.")
 
     def _train_per_epoch(self) -> float:
-        return NotImplementedError
+        raise NotImplementedError(
+            "Abstract method _train_per_epoch must be implemented."
+        )
 
     def train(self) -> list[float]:
         return [self._train_per_epoch() for _ in trange(self.num_epochs)]

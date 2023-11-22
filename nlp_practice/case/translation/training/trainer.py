@@ -27,6 +27,11 @@ class Trainer(ABC):
         self.learning_rate = learning_rate
         self.print_log_frequency = print_log_frequency
 
+        self.num_batches = len(self.train_dataloader)
+        # Precondition
+        if self.num_batches == 0:
+            raise ValueError("Empty dataloader. Cannot train without any batches.")
+
     @abstractmethod
     def _train_per_epoch(self) -> float:
         return NotImplementedError
@@ -65,10 +70,6 @@ class Seq2SeqTrainer(Trainer):
 
     def _train_per_epoch(self) -> float:
         total_loss = 0
-        num_batches = len(self.train_dataloader)
-
-        if num_batches == 0:
-            raise ValueError("Empty dataloader. Cannot train without any batches.")
 
         for input_tensor, target_tensor in self.train_dataloader:
             self._encoder_optimizer.zero_grad()
@@ -86,7 +87,7 @@ class Seq2SeqTrainer(Trainer):
             self._decoder_optimizer.step()
 
             total_loss += loss.item()
-        return total_loss / num_batches
+        return total_loss / self.num_batches
 
 
 class TransformerTrainer(Trainer):
@@ -113,10 +114,6 @@ class TransformerTrainer(Trainer):
 
     def _train_per_epoch(self) -> float:
         total_loss = 0
-        num_batches = len(self.train_dataloader)
-
-        if num_batches == 0:
-            raise ValueError("Empty dataloader. Cannot train without any batches.")
 
         for input_tensor, target_tensor in self.train_dataloader:
             self._optimizer.zero_grad()
@@ -143,4 +140,4 @@ class TransformerTrainer(Trainer):
             self._optimizer.step()
 
             total_loss += loss.item()
-        return total_loss / num_batches
+        return total_loss / self.num_batches

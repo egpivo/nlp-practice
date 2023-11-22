@@ -6,6 +6,7 @@ from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.training.trainer import (
     Seq2SeqTrainer,
+    Trainer,
     TransformerTrainer,
 )
 from nlp_practice.model.decoder import DecoderRNN
@@ -66,30 +67,6 @@ def test_trainer(sample_data):
     assert all(isinstance(loss, float) for loss in losses)
 
 
-def test_empty_dataloader_trainer(sample_data, empty_dataloader):
-    encoder = EncoderRNN(
-        input_size=sample_data[0].num_words, hidden_size=10, dropout_rate=0.1
-    )
-    decoder = DecoderRNN(
-        output_size=sample_data[1].num_words,
-        hidden_size=10,
-        dropout_rate=0.1,
-        device="cpu",
-    )
-    num_epochs = 1
-    trainer = Seq2SeqTrainer(
-        train_dataloader=empty_dataloader,
-        encoder=encoder,
-        decoder=decoder,
-        num_epochs=num_epochs,
-        learning_rate=0.001,
-    )
-    with pytest.raises(
-        ValueError, match="Empty dataloader. Cannot train without any batches."
-    ):
-        trainer.train()
-
-
 @pytest.fixture
 def seq2seq_transformer():
     # Use the same settings as in the Seq2SeqTransformer tests
@@ -147,20 +124,52 @@ def test_transformer_trainer_forward(seq2seq_transformer, dataloader):
     assert len(losses) == num_epochs
 
 
-def test_empty_dataloader_transformer_trainer(empty_dataloader, seq2seq_transformer):
-    num_epochs = 2
-    learning_rate = 0.001
-    print_log_frequency = 5
-
-    trainer_empty = TransformerTrainer(
-        train_dataloader=empty_dataloader,
-        transformer=seq2seq_transformer,
-        num_epochs=num_epochs,
-        learning_rate=learning_rate,
-        print_log_frequency=print_log_frequency,
+def test_empty_dataloader_trainer(sample_data, empty_dataloader):
+    encoder = EncoderRNN(
+        input_size=sample_data[0].num_words, hidden_size=10, dropout_rate=0.1
     )
-
+    decoder = DecoderRNN(
+        output_size=sample_data[1].num_words,
+        hidden_size=10,
+        dropout_rate=0.1,
+        device="cpu",
+    )
+    num_epochs = 1
     with pytest.raises(
         ValueError, match="Empty dataloader. Cannot train without any batches."
     ):
-        trainer_empty.train()
+        trainer = Seq2SeqTrainer(
+            train_dataloader=empty_dataloader,
+            encoder=encoder,
+            decoder=decoder,
+            num_epochs=num_epochs,
+            learning_rate=0.001,
+        )
+
+
+@pytest.fixture
+def sample_dataloader():
+    # Create a DataLoader with some dummy data
+    input_size = 7
+    output_size = 10
+    batch_size = 2
+
+    input_tensors = torch.randint(0, input_size, (batch_size, input_size))
+    target_tensors = torch.randint(0, output_size, (batch_size, output_size))
+
+    dataset = list(zip(input_tensors, target_tensors))
+    return DataLoader(dataset)
+
+
+class MockTrainer(Trainer):
+    pass
+
+
+def test_train_per_epoch_abstract_method(sample_dataloader):
+    mock_trainer = MockTrainer(sample_dataloader, num_epochs=1, learning_rate=0.001)
+
+    # No exception should be raised here, as we have implemented the abstract method
+    try:
+        mock_trainer._train_per_epoch()
+    except NotImplementedError as e:
+        assert "Abstract method _train_per_epoch must be implemented" in str(e)

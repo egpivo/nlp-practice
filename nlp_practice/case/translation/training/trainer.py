@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader
@@ -12,7 +14,28 @@ from nlp_practice.model.encoder import EncoderRNN
 from nlp_practice.model.transformer import Seq2SeqTransformer
 
 
-class Seq2SeqTrainer:
+class Trainer(ABC):
+    def __init__(
+        self,
+        train_dataloader: DataLoader,
+        num_epochs: int,
+        learning_rate: float,
+        print_log_frequency: int = 10,
+    ):
+        self.train_dataloader = train_dataloader
+        self.num_epochs = num_epochs
+        self.learning_rate = learning_rate
+        self.print_log_frequency = print_log_frequency
+
+    @abstractmethod
+    def _train_per_epoch(self) -> float:
+        return NotImplementedError
+
+    def train(self) -> list[float]:
+        return [self._train_per_epoch() for _ in trange(self.num_epochs)]
+
+
+class Seq2SeqTrainer(Trainer):
     def __init__(
         self,
         train_dataloader: DataLoader,
@@ -22,12 +45,15 @@ class Seq2SeqTrainer:
         learning_rate: float,
         print_log_frequency: int = 10,
     ):
-        self.train_dataloader = train_dataloader
+        super().__init__(
+            train_dataloader=train_dataloader,
+            num_epochs=num_epochs,
+            learning_rate=learning_rate,
+            print_log_frequency=print_log_frequency,
+        )
+
         self.encoder = encoder
         self.decoder = decoder
-        self.num_epochs = num_epochs
-        self.learning_rate = learning_rate
-        self.print_log_frequency = print_log_frequency
 
         self._criterion = nn.NLLLoss()
         self._encoder_optimizer = optim.Adam(
@@ -62,11 +88,8 @@ class Seq2SeqTrainer:
             total_loss += loss.item()
         return total_loss / num_batches
 
-    def train(self) -> list[float]:
-        return [self._train_per_epoch() for _ in trange(self.num_epochs)]
 
-
-class TransformerTrainer:
+class TransformerTrainer(Trainer):
     def __init__(
         self,
         train_dataloader: DataLoader,
@@ -75,12 +98,14 @@ class TransformerTrainer:
         learning_rate: float,
         print_log_frequency: int = 10,
     ):
-        self.train_dataloader = train_dataloader
-        self.transformer = transformer
-        self.num_epochs = num_epochs
-        self.learning_rate = learning_rate
-        self.print_log_frequency = print_log_frequency
+        super().__init__(
+            train_dataloader=train_dataloader,
+            num_epochs=num_epochs,
+            learning_rate=learning_rate,
+            print_log_frequency=print_log_frequency,
+        )
 
+        self.transformer = transformer
         self._criterion = nn.NLLLoss()
         self._optimizer = optim.Adam(
             self.transformer.parameters(), lr=self.learning_rate
@@ -119,6 +144,3 @@ class TransformerTrainer:
 
             total_loss += loss.item()
         return total_loss / num_batches
-
-    def train(self) -> list[float]:
-        return [self._train_per_epoch() for _ in trange(self.num_epochs)]

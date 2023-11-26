@@ -10,17 +10,17 @@ def create_masks(
     input_mask = torch.zeros(sequence_lengths["input"], sequence_lengths["input"]).type(
         torch.bool
     )
-    init_target_mask = (
-        (
-            torch.triu(
-                torch.ones(sequence_lengths["target"], sequence_lengths["target"])
-            )
-            == 1
-        ).transpose(0, 1)
-    ).float()
-    target_mask = torch.ones_like(init_target_mask) * float("-inf")
-    target_mask[target_mask == 1] = 0
-
+    ones_mask = (
+        torch.triu(
+            torch.ones(sequence_lengths["target"], sequence_lengths["target"]),
+            diagonal=1,
+        )
+        .transpose(0, 1)
+        .float()
+    )
+    target_mask = ones_mask.masked_fill(ones_mask == 0, float("-inf")).masked_fill(
+        ones_mask == 1, float(0.0)
+    )
     return input_mask.to(device), target_mask.to(device)
 
 

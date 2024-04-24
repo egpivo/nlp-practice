@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from nlp_practice.model.attention import BahadanauAttention
+from nlp_practice.model.layers.attention import BahadanauAttention
 
 
 @pytest.fixture

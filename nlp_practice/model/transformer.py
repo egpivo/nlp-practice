@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn import Transformer
 
 from nlp_practice.case.translation import MAX_LENGTH
-from nlp_practice.model.embedder import PositionalEncoder, TokenEmbedder
+from nlp_practice.model.layers.embedder import PositionalEncoder, TokenEmbedder
 
 
 class Seq2SeqTransformer(nn.Module):

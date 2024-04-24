@@ -8,8 +8,8 @@ import torch
 from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.training.trainer import Seq2SeqTrainer
-from nlp_practice.model.decoder import AttentionDecoderRNN, DecoderRNN
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.model.layers.decoder import AttentionDecoderRNN, DecoderRNN
+from nlp_practice.model.layers.encoder import EncoderRNN
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()

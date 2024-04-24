@@ -5,8 +5,8 @@ from nlp_practice.case.translation.data.dataloader import PairDataLoader
 from nlp_practice.case.translation.data.preprocessor import Preprocessor
 from nlp_practice.case.translation.inference.predictor import Predictor
 from nlp_practice.case.translation.training.trainer import Seq2SeqTrainer
-from nlp_practice.model.decoder import DecoderRNN
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.model.layers.decoder import DecoderRNN
+from nlp_practice.model.layers.encoder import EncoderRNN
 
 
 @pytest.fixture

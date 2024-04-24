@@ -9,8 +9,8 @@ from nlp_practice.case.translation.training.utils import (
     create_masks,
     create_padding_masks,
 )
-from nlp_practice.model.decoder import Decoder
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.model.layers.decoder import Decoder
+from nlp_practice.model.layers.encoder import EncoderRNN
 from nlp_practice.model.transformer import Seq2SeqTransformer
 
 

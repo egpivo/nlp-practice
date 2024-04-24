@@ -14,7 +14,7 @@ def positional_encoder():
 
 def test_pos_embedding_shape(positional_encoder):
     assert positional_encoder.pos_embedding.shape == torch.Size(
-        [positional_encoder.max_length, positional_encoder.embedding_size]
+        [1, positional_encoder.max_length, positional_encoder.embedding_size]
     )
 
 

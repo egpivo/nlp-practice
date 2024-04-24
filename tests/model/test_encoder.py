@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.model.layers.encoder import EncoderRNN
 
 
 @pytest.fixture

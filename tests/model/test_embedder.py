@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from nlp_practice.model.embedder import PositionalEncoder, TokenEmbedder
+from nlp_practice.model.layers.embedder import PositionalEncoder, TokenEmbedder
 
 
 @pytest.fixture

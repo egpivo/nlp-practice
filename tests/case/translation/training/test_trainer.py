@@ -9,8 +9,8 @@ from nlp_practice.case.translation.training.trainer import (
     Trainer,
     TransformerTrainer,
 )
-from nlp_practice.model.decoder import DecoderRNN
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.model.layers.decoder import DecoderRNN
+from nlp_practice.model.layers.encoder import EncoderRNN
 from nlp_practice.model.transformer import Seq2SeqTransformer
 
 

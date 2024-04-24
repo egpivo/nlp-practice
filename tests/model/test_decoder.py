@@ -2,7 +2,7 @@ import pytest
 import torch
 
 from nlp_practice.case.translation import MAX_LENGTH
-from nlp_practice.model.decoder import AttentionDecoderRNN, DecoderRNN
+from nlp_practice.model.layers.decoder import AttentionDecoderRNN, DecoderRNN
 
 
 @pytest.fixture

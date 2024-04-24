@@ -5,8 +5,8 @@ from nlp_practice.case.translation.data.data_handler import (
     LanguageData,
     index_tensor_from_sentence,
 )
-from nlp_practice.model.decoder import AttentionDecoderRNN
-from nlp_practice.model.encoder import EncoderRNN
+from nlp_practice.model.layers.decoder import AttentionDecoderRNN
+from nlp_practice.model.layers.encoder import EncoderRNN
 
 
 class Predictor:

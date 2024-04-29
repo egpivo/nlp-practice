@@ -3,7 +3,10 @@ import torch.nn as nn
 from torch.nn import Transformer
 
 from nlp_practice.case.translation import MAX_LENGTH
+from nlp_practice.model.layers.decoder import DecoderTransformer
 from nlp_practice.model.layers.embedder import PositionalEncoder, TokenEmbedder
+from nlp_practice.model.layers.encoder import EncoderTransformer
+from nlp_practice.model.layers.projection import ProjectionLayer
 
 
 class Seq2SeqTransformer(nn.Module):
@@ -66,3 +69,38 @@ class Seq2SeqTransformer(nn.Module):
         )
         logits = self.output_layer(output)
         return logits
+
+
+class Transformer(nn.Module):
+    def __init__(
+        self,
+        encoder: EncoderTransformer,
+        decoder: DecoderTransformer,
+        source_embedding: TokenEmbedder,
+        target_embedding: TokenEmbedder,
+        source_position: PositionalEncoder,
+        target_position: PositionalEncoder,
+        projection_layer: ProjectionLayer,
+    ):
+        super().__init__()
+
+        self.encoder = encoder
+        self.decoder = decoder
+        self.source_embedding = source_embedding
+        self.target_embedding = target_embedding
+        self.source_position = source_position
+        self.target_position = target_position
+        self.projection_layer = projection_layer
+
+    def encoder(self, source, source_mask):
+        source = self.source_embedding(source)
+        source = self.source_position(source)
+        return self.encoder(source, source_mask)
+
+    def decoder(self, encoder_output, source_mask, target, target_mask):
+        target = self.target_embedding(target)
+        target = self.target_position(target)
+        return self.decoder(target, encoder_output, source_mask, target_mask)
+
+    def project(self, x):
+        return self.projection_layer(x)

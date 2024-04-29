@@ -1,14 +1,15 @@
-from abc import ABC, abstractmethod
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from nlp_practice.case.translation import MAX_LENGTH, SOS_TOKEN
-from nlp_practice.model.layers.attention import BahadanauAttention
+from nlp_practice.model.layers.attention import BahadanauAttention, MultiHeadAttention
+from nlp_practice.model.layers.feed_forward import FeedforwardBlock
+from nlp_practice.model.layers.normalization import LayerNormalization
+from nlp_practice.model.layers.skip_connection import ResidualConnection
 
 
-class Decoder(ABC, nn.Module):
+class DecoderRNN(nn.Module):
     def __init__(
         self, hidden_size: int, output_size: int, dropout_rate: float, device: str
     ) -> None:
@@ -24,17 +25,6 @@ class Decoder(ABC, nn.Module):
         self.output_layer = nn.Linear(self.hidden_size, self.output_size)
         self.dropout = nn.Dropout(self.dropout_rate)
 
-    @abstractmethod
-    def forward(
-        self,
-        encoder_outputs: torch.Tensor,
-        encoder_hidden: torch.Tensor,
-        target_tensor: torch.Tensor = None,
-    ) -> tuple[torch.Tensor]:
-        return NotImplementedError
-
-
-class DecoderRNN(Decoder):
     def forward(
         self,
         encoder_outputs: torch.Tensor,
@@ -73,7 +63,22 @@ class DecoderRNN(Decoder):
         return logits, hidden
 
 
-class AttentionDecoderRNN(Decoder):
+class AttentionDecoderRNN(nn.Module):
+    def __init__(
+        self, hidden_size: int, output_size: int, dropout_rate: float, device: str
+    ) -> None:
+        super().__init__()
+
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.dropout_rate = dropout_rate
+        self.device = device
+
+        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
+        self.gru = nn.GRU(self.hidden_size, self.hidden_size, batch_first=True)
+        self.output_layer = nn.Linear(self.hidden_size, self.output_size)
+        self.dropout = nn.Dropout(self.dropout_rate)
+
     def __init__(
         self,
         hidden_size: int,
@@ -136,3 +141,62 @@ class AttentionDecoderRNN(Decoder):
         output, hidden = self.gru(input_gru, hidden)
         logits = self.output_layer(output)
         return logits, hidden, attention_weights
+
+
+class DecoderBlockerTransformer(nn.Module):
+    def __init__(
+        self,
+        self_attention_block: MultiHeadAttention,
+        cross_attention_block: MultiHeadAttention,
+        feed_forward_block: FeedforwardBlock,
+        dropout: float,
+    ) -> None:
+        super().__init__()
+
+        self.self_attention_block = self_attention_block
+        self.cross_attention_block = cross_attention_block
+        self.feed_forward_block = feed_forward_block
+
+        self.residual_connections = nn.Module(
+            ResidualConnection(dropout) for _ in range(3)
+        )
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        encoder_output: torch.Tensor,
+        source_mask: torch.Tensor,
+        target_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        """Source: encoder; Target: decoder"""
+        x = self.residual_connetions[0](
+            x, lambda x: self.self_attention_block(x, x, x, target_mask)
+        )
+        x = self.residual_connetions[1](
+            x,
+            lambda x: self.cross_attention_block(
+                x, encoder_output, encoder_output, source_mask
+            ),
+        )
+        x = self.residual_connetions[2](x, self.feed_forward_block)
+        return x
+
+
+class DecoderTransformer(nn.Module):
+    def __init__(self, layers: nn.ModuleList) -> None:
+        super().__init__()
+
+        self.layers = layers
+        self.norm = LayerNormalization()
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        encoder_ouput: torch.Tensor,
+        source_mask: torch.Tensor,
+        target_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        for layer in self.layers:
+            x = layer(x, encoder_ouput, source_mask, target_mask)
+
+        return self.norm(x)

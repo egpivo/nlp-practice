@@ -143,7 +143,7 @@ class AttentionDecoderRNN(nn.Module):
         return logits, hidden, attention_weights
 
 
-class DecoderBlockerTransformer(nn.Module):
+class DecoderBlockTransformer(nn.Module):
     def __init__(
         self,
         self_attention_block: MultiHeadAttention,

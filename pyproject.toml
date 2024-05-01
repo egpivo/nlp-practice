@@ -23,6 +23,8 @@ torch = [
 seaborn = "^0.13.0"
 torchmetrics = "^1.2.0"
 nltk = "^3.8.1"
+tokenizers = "^0.19.1"
+datasets = "^2.19.0"
 
 
 

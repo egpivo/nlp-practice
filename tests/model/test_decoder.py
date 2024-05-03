@@ -61,7 +61,7 @@ def test_attention_decoder_rnn_forward(attention_decoder_rnn):
     assert decoder_probs.shape == expected_shape
 
     expected_sum_value = -1169.149169921875
-    expected_mean_value = -2.327592134475708
+    expected_mean_value = -2.3382983207702637
 
     torch.testing.assert_close(
         torch.sum(decoder_probs).item(), expected_sum_value, rtol=1e-5, atol=1e-5

@@ -65,7 +65,12 @@ class DecoderRNN(nn.Module):
 
 class AttentionDecoderRNN(nn.Module):
     def __init__(
-        self, hidden_size: int, output_size: int, dropout_rate: float, device: str
+        self,
+        hidden_size: int,
+        output_size: int,
+        dropout_rate: float,
+        device: str,
+        max_length: int = MAX_LENGTH,
     ) -> None:
         super().__init__()
 
@@ -74,25 +79,9 @@ class AttentionDecoderRNN(nn.Module):
         self.dropout_rate = dropout_rate
         self.device = device
 
-        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
-        self.gru = nn.GRU(self.hidden_size, self.hidden_size, batch_first=True)
         self.output_layer = nn.Linear(self.hidden_size, self.output_size)
         self.dropout = nn.Dropout(self.dropout_rate)
 
-    def __init__(
-        self,
-        hidden_size: int,
-        output_size: int,
-        dropout_rate: float = 0.1,
-        device: str = "cpu",
-        max_length: int = MAX_LENGTH,
-    ) -> None:
-        super().__init__(
-            hidden_size=hidden_size,
-            output_size=output_size,
-            dropout_rate=dropout_rate,
-            device=device,
-        )
         self.max_length = max_length
         self.embedding = nn.Embedding(self.output_size, self.hidden_size)
         self.attention = BahadanauAttention(self.hidden_size)

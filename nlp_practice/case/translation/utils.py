@@ -3,6 +3,8 @@ import re
 import unicodedata
 from io import open
 
+import torch
+
 from nlp_practice.case.translation import ENGLISH_PREFIXES, MAX_LENGTH
 
 
@@ -70,3 +72,8 @@ def filter_pairs(
     pairs: list[list[str]], prefixes: tuple[str] = ENGLISH_PREFIXES
 ) -> list[list[str]]:
     return [pair for pair in pairs if is_valid_pair(pair, prefixes)]
+
+
+def causal_mask(size: int) -> torch.Tensor:
+    mask = torch.triu(torch.ones(1, size, size), diagonal=1).type(torch.int)
+    return mask == 0

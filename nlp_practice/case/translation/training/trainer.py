@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Union
 
 import torch.nn as nn
 from torch import optim
@@ -9,7 +10,7 @@ from nlp_practice.case.translation.training.utils import (
     create_masks,
     create_padding_masks,
 )
-from nlp_practice.model.layers.decoder import Decoder
+from nlp_practice.model.layers.decoder import AttentionDecoderRNN, DecoderRNN
 from nlp_practice.model.layers.encoder import EncoderRNN
 from nlp_practice.model.transformer import Seq2SeqTransformer
 
@@ -46,7 +47,7 @@ class Seq2SeqTrainer(Trainer):
         self,
         train_dataloader: DataLoader,
         encoder: EncoderRNN,
-        decoder: Decoder,
+        decoder: Union[DecoderRNN, AttentionDecoderRNN],
         num_epochs: int,
         learning_rate: float,
         print_log_frequency: int = 10,

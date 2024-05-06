@@ -28,3 +28,4 @@ class TokenizerBuilder:
             tokenizer.save(tokenizer_path)
         else:
             tokenizer = Tokenizer.from_file(tokenizer_path)
+        return tokenizer

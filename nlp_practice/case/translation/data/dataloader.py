@@ -1,61 +1,10 @@
-import numpy as np
 import torch
-from torch.utils.data import DataLoader, TensorDataset, random_split
+from datasets import load_dataset
+from torch.utils.data import DataLoader, random_split
 
-from nlp_practice.case.translation import EOS_TOKEN, MAX_LENGTH
-from nlp_practice.case.translation.data.data_handler import (
-    LanguageData,
-    index_from_sentence,
-)
-
-
-class PairDataset:
-    """
-    Examples
-    --------
-    >>> from nlp_practice.case.translation.data.dataloader import PairDataset
-    >>> from nlp_practice.case.translation.data.preprocessor import Preprocessor
-    >>> input_language, output_language, pairs = Preprocessor(
-    ...     base_path="examples/translation/data",
-    ...     first_language="eng",
-    ...     second_language="fra",
-    ...     does_reverse=True,
-    ... ).process()
-    >>> dataset = PairDataset(pairs, input_language, output_language)()
-    >>> len(dataset)
-    11445
-    >>> type(dataset())
-    <torch.utils.data.dataset.TensorDataset at 0x117961390>
-    """
-
-    def __init__(
-        self,
-        pairs: list[list[str]],
-        input_language: LanguageData,
-        output_language: LanguageData,
-    ) -> None:
-        self.pairs = pairs
-        self.input_language = input_language
-        self.output_language = output_language
-
-    def __len__(self) -> TensorDataset:
-        return len(self.pairs)
-
-    def __call__(self) -> TensorDataset:
-        n = len(self.pairs)
-        input_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
-        target_ids = np.zeros((n, MAX_LENGTH), dtype=np.int32)
-
-        for index, (input, target) in enumerate(self.pairs):
-            inputs = index_from_sentence(self.input_language, input)
-            targets = index_from_sentence(self.output_language, target)
-
-            inputs.append(EOS_TOKEN)
-            targets.append(EOS_TOKEN)
-            input_ids[index, : len(inputs)] = inputs
-            target_ids[index, : len(targets)] = targets
-
-        return TensorDataset(torch.LongTensor(input_ids), torch.LongTensor(target_ids))
+from nlp_practice.case.translation.data.data_handler import LanguageData
+from nlp_practice.case.translation.data.dataset import BilingualDataset, PairDataset
+from nlp_practice.case.translation.data.tokenizer import TokenizerBuilder
 
 
 class PairDataLoader:
@@ -107,4 +56,82 @@ class PairDataLoader:
             shuffle=False,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
+        )
+
+
+class BilingualDataLoader:
+    def __init__(
+        self,
+        config: dict,
+        training_rate: float,
+        dataset_name: str = "opus_books",
+    ) -> None:
+        self.dataset_name = dataset_name
+        self.config = config
+        self.source_language = self.config["source_language"]
+        self.target_language = self.config["target_language"]
+        self.training_rate = training_rate
+
+        self.raw_data = self._get_raw_data()
+        self._source_tokenizer = TokenizerBuilder(
+            self.config, self.raw_data, self.source_language
+        )
+        self._target_tokenizer = TokenizerBuilder(
+            self.config, self.raw_data, self.target_language
+        )
+
+        self.train_size = int(self.training_rate * len(self.raw_data))
+        self.val_size = len(self.raw_data) - self.train_size
+
+    def _get_raw_data(self):
+        return load_dataset(
+            self.dataset_name,
+            f"{self.source_language}-{self.target_language}",
+            split="train",
+        )
+
+    @property
+    def source_tokenizer(self):
+        return self._source_tokenizer
+
+    @property
+    def target_tokenizer(self):
+        return self._target_tokenizer
+
+    @property
+    def train_dataloader(self) -> DataLoader:
+        train_raw_data, _ = random_split(
+            self.raw_data, [self.train_size, self.val_size]
+        )
+
+        train_dataset = BilingualDataset(
+            train_raw_data,
+            self._source_tokenizer,
+            self._target_tokenizer,
+            self.source_language,
+            self.target_language,
+        )
+
+        return DataLoader(
+            train_dataset,
+            shuffle=True,
+            batch_size=self.config["batch_size"],
+        )
+
+    @property
+    def val_dataloader(self) -> DataLoader:
+        _, val_raw_data = random_split(self.raw_data, [self.train_size, self.val_size])
+
+        val_dataset = BilingualDataset(
+            val_raw_data,
+            self._source_tokenizer,
+            self._target_tokenizer,
+            self.source_language,
+            self.target_language,
+        )
+
+        return DataLoader(
+            val_dataset,
+            shuffle=True,
+            batch_size=self.config["batch_size"],
         )

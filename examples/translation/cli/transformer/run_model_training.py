@@ -4,11 +4,11 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import torch
+import yaml
 
-from nlp_practice.case.translation.data.dataloader import PairDataLoader
-from nlp_practice.case.translation.data.preprocessor import Preprocessor
+from nlp_practice.case.translation.data.dataloader import BilingualDataLoader
 from nlp_practice.case.translation.training.trainer import TransformerTrainer
-from nlp_practice.model.transformer import Seq2SeqTransformer
+from nlp_practice.model.transformer import CustomTransformerBuilder
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger()
@@ -17,74 +17,11 @@ LOGGER = logging.getLogger()
 def fetch_args() -> argparse.Namespace:
     arg_parser = ArgumentParser()
     arg_parser.add_argument(
-        "--embedding_size",
-        type=int,
-        dest="embedding_size",
-        default=128,
-        help="The embedding size",
-    )
-    arg_parser.add_argument(
-        "--batch_size",
-        type=int,
-        dest="batch_size",
-        default=32,
-        help="The batch size",
-    )
-    arg_parser.add_argument(
-        "--num_epochs",
-        type=int,
-        dest="num_epochs",
-        default=100,
-        help="The number of epochs",
-    )
-    arg_parser.add_argument(
-        "--num_heads",
-        type=int,
-        dest="num_heads",
-        default=8,
-        help="The number of multi-heads",
-    )
-    arg_parser.add_argument(
-        "--dim_feedforward",
-        type=int,
-        dest="dim_feedforward",
-        default=128,
-        help="The dimensionality of the feedforward layer",
-    )
-    arg_parser.add_argument(
-        "--num_decoder_layers",
-        type=int,
-        dest="num_decoder_layers",
-        default=1,
-        help="The number of decoder layers",
-    )
-    arg_parser.add_argument(
-        "--num_encoder_layers",
-        type=int,
-        dest="num_encoder_layers",
-        default=1,
-        help="The number of encoder layers",
-    )
-    arg_parser.add_argument(
-        "--dropout_rate",
-        type=float,
-        dest="dropout_rate",
-        default=0.1,
-        help="The dropout rate",
-    )
-    arg_parser.add_argument(
-        "--training_rate",
-        type=float,
-        dest="training_rate",
-        default=0.7,
-        help="The training rate",
-    )
-    arg_parser.add_argument(
-        "--learning_rate",
-        type=float,
-        dest="learning_rate",
-        default=0.001,
-        help="The learning rate",
+        "--config_path",
+        type=str,
+        dest="config_path",
+        default="configs/transformer.yaml",
+        help="Model config",
     )
     arg_parser.add_argument(
         "--checkpoint_path",
@@ -100,54 +37,31 @@ def fetch_args() -> argparse.Namespace:
         default="cpu",
         help="The device used in training",
     )
-    arg_parser.add_argument(
-        "--data_base_path",
-        type=str,
-        dest="data_base_path",
-        default="examples/translation/data",
-        help="Data base path",
-    )
-    arg_parser.add_argument(
-        "--does_proceed_training",
-        action="store_true",
-        dest="does_proceed_training",
-        help="Proceed model training based on the existing checkpoint",
-    )
-    arg_parser.add_argument(
-        "--does_use_attention_decoder",
-        action="store_true",
-        dest="does_use_attention_decoder",
-        help="Whether using attention in decoder or not",
-    )
     return arg_parser.parse_args()
 
 
-def run_training_job(args: argparse.Namespace) -> list[float]:
-    input_language, output_language, pairs = Preprocessor(
-        base_path=args.data_base_path,
-        first_language="eng",
-        second_language="fra",
-        does_reverse=True,
-    ).process()
+def run_training_job(
+    args: argparse.Namespace,
+    config: dict,
+    source_vocabulary_size: int = 100,
+    target_vocabulary_size: int = 100,
+) -> list[float]:
+    dataloader_instance = BilingualDataLoader(
+        config=config, training_rate=config["training_rate"]
+    )
+    train_dataloader = dataloader_instance.train_dataloader
+    dataloader_instance.val_dataloader
 
-    train_dataloader = PairDataLoader(
-        pairs=pairs,
-        input_language=input_language,
-        output_language=output_language,
-        training_rate=args.training_rate,
-        batch_size=args.batch_size,
-        device=args.device,
-    ).train_dataloader
+    source_tokenizer = dataloader_instance.source_tokenizer
+    dataloader_instance.target_tokenizer
 
-    transformer = Seq2SeqTransformer(
-        embedding_size=args.embedding_size,
-        num_heads=args.num_heads,
-        dim_feedforward=args.dim_feedforward,
-        num_decoder_layers=args.num_decoder_layers,
-        num_encoder_layers=args.num_encoder_layers,
-        input_size=input_language.num_words,
-        output_size=output_language.num_words,
-    ).to(args.device)
+    transformer = CustomTransformerBuilder(
+        source_vocabulary_size=source_tokenizer.get_vocab_size(),
+        target_vocabulary_size=source_tokenizer.get_vocab_size(),
+        source_seq_len=config["seq_len"],
+        target_seq_len=config["seq_len"],
+        embeddings_size=config["embedding_size"],
+    ).build()
 
     if Path(args.checkpoint_path).is_file() and args.does_proceed_training:
         LOGGER.info(f"Loading the parameters in checkpoint: {args.checkpoint_path}")
@@ -155,10 +69,9 @@ def run_training_job(args: argparse.Namespace) -> list[float]:
         transformer.load_state_dict(checkpoint["state_dict"])
 
     trainer = TransformerTrainer(
+        config=config,
         train_dataloader=train_dataloader,
         transformer=transformer,
-        num_epochs=args.num_epochs,
-        learning_rate=args.learning_rate,
     )
     loss = trainer.train()
 
@@ -184,4 +97,6 @@ def run_training_job(args: argparse.Namespace) -> list[float]:
 
 if __name__ == "__main__":
     args = fetch_args()
-    run_training_job(args)
+    with open(args.config_path, "rt") as f:
+        model_config = yaml.safe_load(f.read())
+    run_training_job(args, model_config)

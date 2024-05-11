@@ -1,0 +1,13 @@
+batch_size: 8
+num_epochs: 20
+lr: 0.0001
+seq_len: 350
+embedding_size: 512
+source_language: "en"
+target_language: "it"
+model_folder: "weights"
+model_basename: "transformer_model"
+period: "null"
+tokenizer_file: "tokenizer_{0}.json"
+experiment_name: "runs/transformer_model"
+training_rate: 0.9

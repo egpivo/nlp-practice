@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 import torch
+from datasets import load_dataset
 
 from nlp_practice.case.translation import EOS_TOKEN
 from nlp_practice.case.translation.utils import normalize_string, read_file
@@ -65,3 +66,10 @@ def index_tensor_from_sentence(
     indexes = index_from_sentence(language, sentence)
     indexes.append(EOS_TOKEN)
     return torch.tensor(indexes, dtype=torch.long, device=device).view(1, -1)
+
+
+def get_huggingface_dataset(
+    source_language, target_language, dataset: str = "opus_books"
+):
+    languages = f"{source_language}-{target_language}"
+    return load_dataset(dataset, languages, split="train")

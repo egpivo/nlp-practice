@@ -1,5 +1,8 @@
 from abc import ABC
+from pathlib import Path
+from typing import Union
 
+import torch.cuda
 import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader
@@ -9,9 +12,8 @@ from nlp_practice.case.translation.training.utils import (
     create_masks,
     create_padding_masks,
 )
-from nlp_practice.model.layers.decoder import Decoder
+from nlp_practice.model.layers.decoder import AttentionDecoderRNN, DecoderRNN
 from nlp_practice.model.layers.encoder import EncoderRNN
-from nlp_practice.model.transformer import Seq2SeqTransformer
 
 
 class Trainer(ABC):
@@ -46,7 +48,7 @@ class Seq2SeqTrainer(Trainer):
         self,
         train_dataloader: DataLoader,
         encoder: EncoderRNN,
-        decoder: Decoder,
+        decoder: Union[DecoderRNN, AttentionDecoderRNN],
         num_epochs: int,
         learning_rate: float,
         print_log_frequency: int = 10,
@@ -94,24 +96,26 @@ class Seq2SeqTrainer(Trainer):
 class TransformerTrainer(Trainer):
     def __init__(
         self,
+        config: dict,
         train_dataloader: DataLoader,
-        transformer: Seq2SeqTransformer,
-        num_epochs: int,
-        learning_rate: float,
+        transformer: nn.Module,
         print_log_frequency: int = 10,
     ):
         super().__init__(
             train_dataloader=train_dataloader,
-            num_epochs=num_epochs,
-            learning_rate=learning_rate,
+            num_epochs=config["num_epochs"],
+            learning_rate=config["lr"],
             print_log_frequency=print_log_frequency,
         )
+        self.device = torch.device("cuda" if torch.cuda.is_available()() else "cpu")
 
-        self.transformer = transformer
+        self.transformer = transformer.to(self.device)
         self._criterion = nn.NLLLoss()
         self._optimizer = optim.Adam(
             self.transformer.parameters(), lr=self.learning_rate
         )
+
+        Path(config["model_folder"]).mkdir(parents=True, exist_ok=True)
 
     def _train_per_epoch(self) -> float:
         total_loss = 0

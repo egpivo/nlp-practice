@@ -62,11 +62,11 @@ class PairDataLoader:
 class BilingualDataLoader:
     def __init__(
         self,
-        dataset: str,
         config: dict,
         training_rate: float,
+        dataset_name: str = "opus_books",
     ) -> None:
-        self.dataset = dataset
+        self.dataset_name = dataset_name
         self.config = config
         self.source_language = self.config["source_language"]
         self.target_language = self.config["target_language"]
@@ -85,7 +85,7 @@ class BilingualDataLoader:
 
     def _get_raw_data(self):
         return load_dataset(
-            "opus_books",
+            self.dataset_name,
             f"{self.source_language}-{self.target_language}",
             split="train",
         )

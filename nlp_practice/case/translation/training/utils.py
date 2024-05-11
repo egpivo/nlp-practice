@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 
 from nlp_practice.case.translation import PAD_TOKEN
@@ -29,3 +31,10 @@ def create_padding_masks(
 ) -> tuple[torch.Tensor]:
     pad_sequence = lambda sequence: (sequence == PAD_TOKEN)
     return pad_sequence(input).to(device), pad_sequence(target).to(device)
+
+
+def get_weights_file_path(config: dict, epoch: str) -> str:
+    model_folder = config["model_folder"]
+    model_basename = config["model_basename"]
+    model_filename = f"{model_basename}_{epoch}.pt"
+    return str(Path(".") / model_folder / model_filename)
